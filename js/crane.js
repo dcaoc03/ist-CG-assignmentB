@@ -10,13 +10,20 @@ import * as THREE from 'three';
 
 // GLOBAL VARIABLES (used in several objects)
 
-var camera, scene, renderer;
+var camera, cameraFrontal, cameraLateral, cameraTopo, cameraOrtogonal, cameraPerspetiva, cameraMovel
+
+var scene, renderer;
 
 var geometry, material, mesh;
 
 var velocity;
 
 var axis;
+
+
+// Background color
+
+const backgroundColor = 0x79abfc; // Light blue color
 
 // OBJECT DECLARATION
 
@@ -60,7 +67,6 @@ var changed;
     const jibDepth = 2;
 
     const jibColor = 0xffcc00;
-
 
 /*
     +-------------------------------+
@@ -152,26 +158,142 @@ function createScene() {
 
     scene = new THREE.Scene();
 
+    scene.background = new THREE.Color(backgroundColor); // Light blue color
+
     axis = new THREE.AxesHelper(10);
     axis.visible = true;
 
     scene.add(axis);
 
+
     createUpperCrane();
 }
 
-function createCamera() {
+/*
+    +----------------------------------------+
+    |                                        |
+    |                 CAMERAS                |
+    |                                        |
+    +----------------------------------------+
+*/
+
+// Trocar para camera frontal
+function switchToCameraFrontal() {
+    camera = cameraFrontal;
+}
+
+// Trocar para camera lateral
+function switchToCameraLateral() {
+    camera = cameraLateral;
+}
+
+// Trocar para camera de topo
+function switchToCameraTopo() {
+    camera = cameraTopo;
+}
+
+// Trocar para camera ortogonal
+function switchToCameraOrtogonal() {
+    camera = cameraOrtogonal;
+}
+
+// Trocar para camera perspetiva
+function switchToCameraPerspetiva() {
+    camera = cameraPerspetiva;
+}
+
+// Trocar para camera Movel
+function switchToCameraMovel() {
+    camera = cameraMovel;
+}
+
+function createCameraFrontal() {
     'use strict';
-    camera = new THREE.PerspectiveCamera(70,
+    cameraFrontal = new THREE.OrthographicCamera(
+        window.innerWidth / -40,   // Left
+        window.innerWidth / 40,    // Right
+        window.innerHeight / 40,   // Top
+        window.innerHeight / -40,  // Bottom
+        1,                         // Near plane
+        100                        // Far plane
+    );
+    cameraFrontal.position.x = 110; // 25
+    cameraFrontal.position.y = 0; // -25
+    cameraFrontal.position.z = 0; // 25
+    cameraFrontal.lookAt(scene.position);
+}
+
+function createCameraLateral() {
+    'use strict';
+    cameraLateral = new THREE.OrthographicCamera(
+        window.innerWidth / -50,   // Left
+        window.innerWidth / 50,    // Right
+        window.innerHeight / 50,   // Top
+        window.innerHeight / -50,  // Bottom
+        1,                         // Near plane
+        100                        // Far plane
+    );
+    cameraLateral.position.x = 0;
+    cameraLateral.position.y = 0;
+    cameraLateral.position.z = 50;
+    cameraLateral.lookAt(scene.position);
+}
+ 
+function createCameraTopo() {
+    'use strict';
+    cameraTopo = new THREE.OrthographicCamera(
+        window.innerWidth / -40,   // Left
+        window.innerWidth / 40,    // Right
+        window.innerHeight / 40,   // Top
+        window.innerHeight / -40,  // Bottom
+        1,                         // Near plane
+        100                        // Far plane
+    );
+    cameraTopo.position.x = 0;
+    cameraTopo.position.y = 50;
+    cameraTopo.position.z = 0;
+    cameraTopo.lookAt(scene.position);
+}
+
+function createCameraOrtogonal() {
+    'use strict';
+    cameraOrtogonal = new THREE.OrthographicCamera(
+        window.innerWidth / -40,   // Left
+        window.innerWidth / 40,    // Right
+        window.innerHeight / 40,   // Top
+        window.innerHeight / -40,  // Bottom
+        1,                         // Near plane
+        100                        // Far plane
+    );
+    cameraOrtogonal.position.x = 50;
+    cameraOrtogonal.position.y = 50;
+    cameraOrtogonal.position.z = 50;
+    cameraOrtogonal.lookAt(scene.position);
+}
+
+function createCameraPerspetiva() {
+    'use strict';
+    cameraPerspetiva = new THREE.PerspectiveCamera(70,
                                          window.innerWidth / window.innerHeight,
                                          1,
                                          1000);
-    camera.position.x = 25;
-    camera.position.y = -25;
-    camera.position.z = 25;
-    camera.lookAt(scene.position);
+    cameraPerspetiva.position.x = 30;
+    cameraPerspetiva.position.y = 30;
+    cameraPerspetiva.position.z = 30;
+    cameraPerspetiva.lookAt(scene.position);
 }
 
+function createCameraMovel() {
+    'use strict';
+    cameraMovel = new THREE.PerspectiveCamera(70,
+                                         window.innerWidth / window.innerHeight,
+                                         1,
+                                         1000);
+    cameraMovel.position.x = 30;
+    cameraMovel.position.y = 30;
+    cameraMovel.position.z = 30;
+    cameraMovel.lookAt(scene.position);
+}
 
 /*
     +--------------------+
@@ -197,32 +319,24 @@ function onKeyDown(e) {
     'use strict';
 
     switch (e.keyCode) {
-    case 65: //A
-    case 97: //a
-        scene.traverse(function (node) {
-            if (node instanceof THREE.Mesh) {
-                node.material.wireframe = !node.material.wireframe;
-            }
-        });
-        break;
-    case 83:  //S
-    case 115: //s
-        ball.userData.jumping = !ball.userData.jumping;
-        break;
-    case 69:  //E
-    case 101: //e
-        axis.visible = !axis.visible;
-        break;
-    case 187:
-        velocity += 0.01;
-        delta2 += 1;
-        changed = true;
-        break;
-    case 189:
-        velocity -= 0.01;
-        if (velocity < 0)
-            velocity = 0;
-        break;
+        case 49: // Tecla '1'
+            switchToCameraFrontal();
+            break;
+        case 50: // Tecla '2'
+            switchToCameraLateral();
+            break;
+        case 51: // Tecla '3'
+            switchToCameraTopo();
+            break;
+        case 52: // Tecla '4'
+            switchToCameraOrtogonal();
+            break;
+        case 53: // Tecla '5'
+            switchToCameraPerspetiva();
+            break;
+        case 54: // Tecla '6'
+            switchToCameraMovel();
+            break;
     }
 }
 
@@ -250,7 +364,17 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     createScene();
-    createCamera();
+
+    // Criação de cameras
+    createCameraFrontal();
+    createCameraLateral();
+    createCameraTopo();
+    createCameraOrtogonal();
+    createCameraPerspetiva();
+    createCameraMovel();
+
+    switchToCameraFrontal();
+    
     velocity = 0.10;
 
     render();
