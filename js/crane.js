@@ -25,7 +25,7 @@ var hook, trolley, upperCrane;
 // KEYWORD-CONTROLLED VARIABLES
 
 var theta2 = 0;
-var delta1 = 16;
+var delta1 = 20;
 var delta2 = 10;
 var changed;
 
@@ -50,16 +50,46 @@ var changed;
     // Trolley
     const trolleyCarWidth = 3;
     const trolleyCarHeight = 1;
-    const trolleyCarDepth = 1.5;
+    const trolleyCarDepth = 2;
 
     const trolleyCarColor = 0xff9900;
 
     // Jib
-    const jibWidth = 20;
-    const jibHeight = 1;
-    const jibDepth = 2;
+    const jibWidth = 30;
+    const jibHeight = 2;
+    const jibDepth = 3;
 
     const jibColor = 0xffcc00;
+
+    // Apex
+    const apexWidth = 3;
+    const apexHeight = 8;
+    const apexDepth = 3;
+
+    const apexColor = 0xffcc00;
+
+    // Counterjib
+    const counterjibWidth = 10;
+    const counterjibHeight = 2;
+    const counterjibDepth = 3;
+
+    const counterjibColor = 0xffcc00;
+
+    // Rear Pendant
+    const rearPendantRadius = 0.25;
+    const rearPendantHeight = 9;
+    const rearPendantAngle = -1.107;
+
+    const rearPendantHeightTranslation = (rearPendantHeight/2)*(1-Math.cos(rearPendantAngle))-0.5;
+
+    const rearPendantColor = 0x888888;
+
+    // Fore Pendant
+    const forePendantRadius = 1;
+    const forePendantHeight = 5;
+    const forePendantAngle = 8;
+
+    const forePendantColor = 0x888888;
 
 
 /*
@@ -137,9 +167,32 @@ function createUpperCrane() {
     // Jib creation
     material = new THREE.MeshBasicMaterial({ color: jibColor, wireframe: false });
     geometry = new THREE.BoxGeometry(jibWidth, jibHeight, jibDepth);
-    geometry.translate(jibWidth/2,jibHeight/2,0);
+    geometry.translate(jibWidth/2+apexWidth/2,jibHeight/2,0);
     mesh = new THREE.Mesh(geometry, material);
     upperCrane.add(mesh);
+
+    // Apex creation
+    material = new THREE.MeshBasicMaterial({ color: apexColor, wireframe: false });
+    geometry = new THREE.BoxGeometry(apexWidth, apexHeight, apexDepth);
+    geometry.translate(0,apexHeight/2,0);
+    mesh = new THREE.Mesh(geometry, material);
+    upperCrane.add(mesh);
+
+    // Counterjib creation
+    material = new THREE.MeshBasicMaterial({ color: counterjibColor, wireframe: false });
+    geometry = new THREE.BoxGeometry(counterjibWidth, counterjibHeight, counterjibDepth);
+    geometry.translate(-counterjibWidth/2-apexWidth/2,counterjibHeight/2,0);
+    mesh = new THREE.Mesh(geometry, material);
+    upperCrane.add(mesh);
+    
+    // Rear Cable creation
+    material = new THREE.MeshBasicMaterial({ color: rearPendantColor, wireframe: false });
+    geometry = new THREE.CylinderGeometry(rearPendantRadius, rearPendantRadius, rearPendantHeight);
+    geometry.rotateZ(rearPendantAngle);
+    geometry.translate(-counterjibWidth/2,rearPendantHeightTranslation+counterjibHeight,0);
+    mesh = new THREE.Mesh(geometry, material);
+    upperCrane.add(mesh);
+
 
     // Trolley creation
     createTrolley(upperCrane, trolleyCarWidth/2+delta1, -trolleyCarHeight/2, 0);
@@ -166,9 +219,9 @@ function createCamera() {
                                          window.innerWidth / window.innerHeight,
                                          1,
                                          1000);
-    camera.position.x = 25;
-    camera.position.y = -25;
-    camera.position.z = 25;
+    camera.position.x = 0;
+    camera.position.y = 0;
+    camera.position.z = 50;
     camera.lookAt(scene.position);
 }
 
