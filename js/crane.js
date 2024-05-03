@@ -87,16 +87,38 @@ var changedTrolleyW;
     const rearPendantHeight = 9;
     const rearPendantAngle = -1.107;
 
-    const rearPendantHeightTranslation = (rearPendantHeight/2)*(1-Math.cos(rearPendantAngle))-0.5;
+    const rearPendantHeightTranslation = (2*counterjibWidth/5)/(-Math.tan(rearPendantAngle));
 
     const rearPendantColor = 0x888888;
 
     // Fore Pendant
-    const forePendantRadius = 1;
-    const forePendantHeight = 5;
-    const forePendantAngle = 8;
+    const forePendantRadius = 0.25;
+    const forePendantHeight = 21;
+    const forePendantAngle = 1.373;
 
+    const forePendantHeightTranslation = (jibWidth/3)/Math.tan(forePendantAngle);
+    
     const forePendantColor = 0x888888;
+
+    // Cabin
+    const cabinWidth = 4;
+    const cabinHeight = 3;
+    const cabinDepth = 3;
+
+    const cabinColor = 0x5588ff;
+
+    // Counterweight
+    const counterweightWidth = 4;
+    const counterweightHeight = 2;
+    const counterweightDepth = 3;
+
+    const counterweightColor = 0x666666;
+
+    // Turntable
+    const turntableRadius = 1.5;
+    const turntableHeight = 1;
+
+    const turntableColor = 0xff9900;
 
 
 /*
@@ -175,21 +197,21 @@ function createUpperCrane() {
     // Jib creation
     material = new THREE.MeshBasicMaterial({ color: jibColor, wireframe: false });
     geometry = new THREE.BoxGeometry(jibWidth, jibHeight, jibDepth);
-    geometry.translate(jibWidth/2+apexWidth/2,jibHeight/2,0);
+    geometry.translate(jibWidth/2+apexWidth/2,jibHeight/2+cabinHeight+turntableHeight,0);
     mesh = new THREE.Mesh(geometry, material);
     upperCrane.add(mesh);
 
     // Apex creation
     material = new THREE.MeshBasicMaterial({ color: apexColor, wireframe: false });
     geometry = new THREE.BoxGeometry(apexWidth, apexHeight, apexDepth);
-    geometry.translate(0,apexHeight/2,0);
+    geometry.translate(0,apexHeight/2+cabinHeight+turntableHeight,0);
     mesh = new THREE.Mesh(geometry, material);
     upperCrane.add(mesh);
 
     // Counterjib creation
     material = new THREE.MeshBasicMaterial({ color: counterjibColor, wireframe: false });
     geometry = new THREE.BoxGeometry(counterjibWidth, counterjibHeight, counterjibDepth);
-    geometry.translate(-counterjibWidth/2-apexWidth/2,counterjibHeight/2,0);
+    geometry.translate(-counterjibWidth/2-apexWidth/2,counterjibHeight/2+cabinHeight+turntableHeight,0);
     mesh = new THREE.Mesh(geometry, material);
     upperCrane.add(mesh);
     
@@ -197,13 +219,41 @@ function createUpperCrane() {
     material = new THREE.MeshBasicMaterial({ color: rearPendantColor, wireframe: false });
     geometry = new THREE.CylinderGeometry(rearPendantRadius, rearPendantRadius, rearPendantHeight);
     geometry.rotateZ(rearPendantAngle);
-    geometry.translate(-counterjibWidth/2,rearPendantHeightTranslation+counterjibHeight,0);
+    geometry.translate(-(2*counterjibWidth/5)-apexWidth/2,rearPendantHeightTranslation+counterjibHeight+cabinHeight+turntableHeight,0);
+    mesh = new THREE.Mesh(geometry, material);
+    upperCrane.add(mesh);
+    
+    // Fore Cable creation
+    material = new THREE.MeshBasicMaterial({ color: forePendantColor, wireframe: false });
+    geometry = new THREE.CylinderGeometry(forePendantRadius, forePendantRadius, forePendantHeight);
+    geometry.rotateZ(forePendantAngle);
+    geometry.translate(jibWidth/3+apexWidth/2,forePendantHeightTranslation+jibHeight+cabinHeight+turntableHeight,0);
     mesh = new THREE.Mesh(geometry, material);
     upperCrane.add(mesh);
 
+    // Cabin creation
+    material = new THREE.MeshBasicMaterial({ color: cabinColor, wireframe: false });
+    geometry = new THREE.BoxGeometry(cabinWidth, cabinHeight, cabinDepth);
+    geometry.translate(cabinWidth/2-apexWidth/2,turntableHeight+(cabinHeight/2),0);
+    mesh = new THREE.Mesh(geometry, material);
+    upperCrane.add(mesh);
+
+    // Counterweight creation
+    material = new THREE.MeshBasicMaterial({ color: counterweightColor, wireframe: false });
+    geometry = new THREE.BoxGeometry(counterweightWidth, counterweightHeight, counterweightDepth);
+    geometry.translate(-counterweightWidth/2-(3*counterjibWidth/5),-counterweightHeight/2+cabinHeight+turntableHeight,0);
+    mesh = new THREE.Mesh(geometry, material);
+    upperCrane.add(mesh);
+
+    // Turntable creation
+    material = new THREE.MeshBasicMaterial({ color: turntableColor, wireframe: false });
+    geometry = new THREE.CylinderGeometry(turntableRadius, turntableRadius, turntableHeight);
+    geometry.translate(0, turntableHeight/2, 0);
+    mesh = new THREE.Mesh(geometry, material);
+    upperCrane.add(mesh);
 
     // Trolley creation
-    createTrolley(upperCrane, trolleyCarWidth/2+delta1, -trolleyCarHeight/2, 0);
+    createTrolley(upperCrane, trolleyCarWidth/2+delta1, -trolleyCarHeight/2+cabinHeight+turntableHeight, 0);
 
     scene.add(upperCrane);
 }
@@ -290,7 +340,7 @@ function createCameraLateral() {
     );
     cameraLateral.position.x = 0;
     cameraLateral.position.y = 0;
-    cameraLateral.position.z = 50;
+    cameraLateral.position.z = 70;
     cameraLateral.lookAt(scene.position);
 }
  
@@ -400,6 +450,14 @@ function onKeyDown(e) {
     'use strict';
 
     switch (e.keyCode) {
+        case 65: //A
+        case 97: //a
+            scene.traverse(function (node) {
+                if (node instanceof THREE.Mesh) {
+                    node.material.wireframe = !node.material.wireframe;
+                }
+            });
+            break;
         case 49: // Tecla '1'
             switchToCameraFrontal();
             break;
