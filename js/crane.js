@@ -20,6 +20,7 @@ var velocity;
 
 var axis;
 
+var keys = {};
 
 // Background color
 
@@ -160,6 +161,8 @@ function createHook(obj, x, y, z) {
     createClaw(hook, hookBlockRadius, -hookBlockHeight, 0);
     createClaw(hook, -hookBlockRadius, -hookBlockHeight, 0);
 
+    createCameraMovel();
+    hook.add(cameraMovel);
     hook.position.set(x, y, z);
     obj.add(hook);
 }
@@ -392,15 +395,14 @@ function createCameraPerspetiva() {
 }
 
 function createCameraMovel() {
-    'use strict';
     cameraMovel = new THREE.PerspectiveCamera(70,
-                                         window.innerWidth / window.innerHeight,
-                                         1,
-                                         1000);
-    cameraMovel.position.x = 30;
-    cameraMovel.position.y = 30;
-    cameraMovel.position.z = 30;
-    cameraMovel.lookAt(scene.position);
+        window.innerWidth / window.innerHeight,
+        1,
+        100); 
+    cameraMovel.position.x = 0;
+    cameraMovel.position.y = -hookBlockHeight/2;
+    cameraMovel.position.z = 0;
+    cameraMovel.rotation.set(-Math.PI / 2, 0, 0); 
 }
 
 /*
@@ -411,35 +413,13 @@ function createCameraMovel() {
     +--------------------+
 */
 
-function update() {
-    if (trolley.userData.movingW) {
-        moveTrolleyW();
-    }
-    if (trolley.userData.movingS) {
-        moveTrolleyS();
-    }
-    if (upperCrane.userData.rotatingA) {
-        rotateUpperCraneA();
-    }
-    if (upperCrane.userData.rotatingQ) {
-        rotateUpperCraneQ();
-    }
-    if (trolley.userData.extending) {
-        extendCable();
-    }
-    if (trolley.userData.retracting) {
-        retractCable();
-    }
-}
 
 function rotateUpperCraneA() {
     upperCrane.rotation.y += Math.PI / 180;
-    upperCrane.userData.rotatingA = false;
 }
 
 function rotateUpperCraneQ() {
     upperCrane.rotation.y -= Math.PI / 180;
-    upperCrane.userData.rotatingQ = false
 }
 
 function moveTrolleyS() {
@@ -447,14 +427,12 @@ function moveTrolleyS() {
     if (trolley.position.x > cabinWidth + 0.2) {
         trolley.position.x -= 0.1
     }
-    trolley.userData.movingS = false;
 }
 
 function moveTrolleyW() {
     if (trolley.position.x < jibWidth) {
         trolley.position.x += 0.1
     }
-    trolley.userData.movingW = false;
 }
 
 function extendCable() {
@@ -462,14 +440,12 @@ function extendCable() {
     if (hookCable.scale.y < 50) {
         hookCable.scale.y += 0.01
     }
-    trolley.userData.extending = false;
 }
 
 function retractCable() {
     if (hookCable.scale.y > 0) {
         hookCable.scale.y -= 0.01
     }
-    trolley.userData.retracting = false;
 }
 
 function onResize() {
@@ -484,54 +460,50 @@ function onResize() {
 
 }
 
-function onKeyDown(e) {
-    'use strict';
+function onKeyDown(event) {
+    keys[event.keyCode] = true;
+}
 
-    switch (e.keyCode) {
-        //case 65: //A
-        //case 97: //a
-        //    scene.traverse(function (node) {
-        //        if (node instanceof THREE.Mesh) {
-        //            node.material.wireframe = !node.material.wireframe;
-        //        }
-        //    });
-        //    break;
-        case 49: // Tecla '1'
-            switchToCameraFrontal();
-            break;
-        case 50: // Tecla '2'
-            switchToCameraLateral();
-            break;
-        case 51: // Tecla '3'
-            switchToCameraTopo();
-            break;
-        case 52: // Tecla '4'
-            switchToCameraOrtogonal();
-            break;
-        case 53: // Tecla '5'
-            switchToCameraPerspetiva();
-            break;
-        case 54: // Tecla '6'
-            switchToCameraMovel();
-            break;
-        case 87: // Tecla 'W' e 'w'
-            trolley.userData.movingW = true;
-            break;
-        case 83: // Tecla 'S' e 's'
-            trolley.userData.movingS = true;
-            break;
-        case  81: // Tecla 'Q' e 'q'
-            upperCrane.userData.rotatingQ = true; 
-            break;
-        case 65: // Tecla 'A' e 'a'
-            upperCrane.userData.rotatingA = true;
-            break;
-        case  69: // Tecla 'E' e 'e'
-            trolley.userData.extending = true; 
-            break;
-        case 68: // Tecla 'D' e 'd'
-            trolley.userData.retracting = true;
-            break;
+function onKeyUp(event) {
+    keys[event.keyCode] = false;
+}
+
+function update() {
+    if (keys[49]) { // Tecla '1'
+        switchToCameraFrontal();
+    }
+    if (keys[50]) { // Tecla '2'
+        switchToCameraLateral();
+    }
+    if (keys[51]) { // Tecla '3'
+        switchToCameraTopo();
+    }
+    if (keys[52]) { // Tecla '4'
+        switchToCameraOrtogonal();
+    }
+    if (keys[53]) { // Tecla '5'
+        switchToCameraPerspetiva();
+    }
+    if (keys[54]) { // Tecla '6'
+        switchToCameraMovel();
+    }
+    if (keys[87]) { // Tecla 'W' ou 'w'
+        moveTrolleyW();
+    }
+    if (keys[83]) { // Tecla 'S' ou 's'
+        moveTrolleyS();
+    }
+    if (keys[81]) { // Tecla 'Q' ou 'q'
+        rotateUpperCraneQ();
+    }
+    if (keys[65]) { // Tecla 'A' ou 'a'
+        rotateUpperCraneA();
+    }
+    if (keys[69]) { // Tecla 'E' ou 'e'
+        extendCable();
+    }
+    if (keys[68]) { // Tecla 'D' ou 'd'
+        retractCable();
     }
 }
 
@@ -558,6 +530,7 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
+
     createScene();
 
     // Criação de cameras
@@ -566,7 +539,6 @@ function init() {
     createCameraTopo();
     createCameraOrtogonal();
     createCameraPerspetiva();
-    createCameraMovel();
 
     switchToCameraFrontal();
     
@@ -575,6 +547,7 @@ function init() {
     render();
 
     window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
     window.addEventListener("resize", onResize);
 
     changedTrolleyW = false
