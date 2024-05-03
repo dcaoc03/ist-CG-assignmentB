@@ -27,7 +27,7 @@ const backgroundColor = 0x79abfc; // Light blue color
 
 // OBJECT DECLARATION
 
-var hook, trolley, upperCrane;
+var hook, trolley, upperCrane, hookCable;
 
 // KEYWORD-CONTROLLED VARIABLES
 
@@ -168,7 +168,7 @@ function createTrolley(obj, x, y, z) {
     'use strict';
 
     trolley = new THREE.Object3D();
-    trolley.userData = { movingW: false, movingS: false};
+    trolley.userData = { movingW: false, movingS: false, extending: false, retracting: false};
 
     // Trolley Car creation
     material = new THREE.MeshBasicMaterial({ color:trolleyCarColor, wireframe: false });
@@ -179,8 +179,8 @@ function createTrolley(obj, x, y, z) {
     material = new THREE.MeshBasicMaterial({ color: hookCableColor, wireframe: false });
     geometry = new THREE.CylinderGeometry(hookCableRadius, hookCableRadius, delta2);
     geometry.translate(0,-delta2/2-trolleyCarHeight/2,0);
-    mesh = new THREE.Mesh(geometry, material);
-    trolley.add(mesh);
+    hookCable = new THREE.Mesh(geometry, material);
+    trolley.add(hookCable);
 
     // Hook creation
     createHook(trolley, 0, -delta2-trolleyCarHeight/2, 0);
@@ -193,6 +193,7 @@ function createUpperCrane() {
     'use strict';
 
     upperCrane = new THREE.Object3D();
+    upperCrane.userData = { rotatingA: false, rotatingQ: false};
 
     // Jib creation
     material = new THREE.MeshBasicMaterial({ color: jibColor, wireframe: false });
@@ -255,6 +256,8 @@ function createUpperCrane() {
     // Trolley creation
     createTrolley(upperCrane, trolleyCarWidth/2+delta1, -trolleyCarHeight/2+cabinHeight+turntableHeight, 0);
 
+    upperCrane.rotation.set(0, 0, 0);
+
     scene.add(upperCrane);
 }
 
@@ -315,10 +318,10 @@ function switchToCameraMovel() {
 function createCameraFrontal() {
     'use strict';
     cameraFrontal = new THREE.OrthographicCamera(
-        window.innerWidth / -40,   // Left
-        window.innerWidth / 40,    // Right
-        window.innerHeight / 40,   // Top
-        window.innerHeight / -40,  // Bottom
+        window.innerWidth / -30,   // Left
+        window.innerWidth / 30,    // Right
+        window.innerHeight / 30,   // Top
+        window.innerHeight / -30,  // Bottom
         1,                         // Near plane
         200                        // Far plane
     );
@@ -331,12 +334,12 @@ function createCameraFrontal() {
 function createCameraLateral() {
     'use strict';
     cameraLateral = new THREE.OrthographicCamera(
-        window.innerWidth / -50,   // Left
-        window.innerWidth / 50,    // Right
-        window.innerHeight / 50,   // Top
-        window.innerHeight / -50,  // Bottom
+        window.innerWidth / -30,   // Left
+        window.innerWidth / 30,    // Right
+        window.innerHeight / 30,   // Top
+        window.innerHeight / -30,  // Bottom
         1,                         // Near plane
-        100                        // Far plane
+        200                        // Far plane
     );
     cameraLateral.position.x = 0;
     cameraLateral.position.y = 0;
@@ -347,12 +350,12 @@ function createCameraLateral() {
 function createCameraTopo() {
     'use strict';
     cameraTopo = new THREE.OrthographicCamera(
-        window.innerWidth / -40,   // Left
-        window.innerWidth / 40,    // Right
-        window.innerHeight / 40,   // Top
-        window.innerHeight / -40,  // Bottom
+        window.innerWidth / -30,   // Left
+        window.innerWidth / 30,    // Right
+        window.innerHeight / 30,   // Top
+        window.innerHeight / -30,  // Bottom
         1,                         // Near plane
-        100                        // Far plane
+        200                        // Far plane
     );
     cameraTopo.position.x = 0;
     cameraTopo.position.y = 50;
@@ -363,12 +366,12 @@ function createCameraTopo() {
 function createCameraOrtogonal() {
     'use strict';
     cameraOrtogonal = new THREE.OrthographicCamera(
-        window.innerWidth / -40,   // Left
-        window.innerWidth / 40,    // Right
-        window.innerHeight / 40,   // Top
-        window.innerHeight / -40,  // Bottom
+        window.innerWidth / -30,   // Left
+        window.innerWidth / 30,    // Right
+        window.innerHeight / 30,   // Top
+        window.innerHeight / -30,  // Bottom
         1,                         // Near plane
-        100                        // Far plane
+        200                        // Far plane
     );
     cameraOrtogonal.position.x = 50;
     cameraOrtogonal.position.y = 50;
@@ -382,9 +385,9 @@ function createCameraPerspetiva() {
                                          window.innerWidth / window.innerHeight,
                                          1,
                                          1000);
-    cameraPerspetiva.position.x = 30;
-    cameraPerspetiva.position.y = 30;
-    cameraPerspetiva.position.z = 30;
+    cameraPerspetiva.position.x = 35;
+    cameraPerspetiva.position.y = 35;
+    cameraPerspetiva.position.z = 35;
     cameraPerspetiva.lookAt(scene.position);
 }
 
@@ -409,19 +412,39 @@ function createCameraMovel() {
 */
 
 function update() {
-    console.log("updating");
     if (trolley.userData.movingW) {
-        console.log("W");
         moveTrolleyW();
     }
     if (trolley.userData.movingS) {
-        console.log("S");
         moveTrolleyS();
+    }
+    if (upperCrane.userData.rotatingA) {
+        rotateUpperCraneA();
+    }
+    if (upperCrane.userData.rotatingQ) {
+        rotateUpperCraneQ();
+    }
+    if (trolley.userData.extending) {
+        extendCable();
+    }
+    if (trolley.userData.retracting) {
+        retractCable();
     }
 }
 
+function rotateUpperCraneA() {
+    upperCrane.rotation.y += Math.PI / 180;
+    upperCrane.userData.rotatingA = false;
+}
+
+function rotateUpperCraneQ() {
+    upperCrane.rotation.y -= Math.PI / 180;
+    upperCrane.userData.rotatingQ = false
+}
+
 function moveTrolleyS() {
-    if (trolley.position.x > trolleyCarWidth) {
+    // For some reason cabinWidth != actualCabinWidth
+    if (trolley.position.x > cabinWidth + 0.2) {
         trolley.position.x -= 0.1
     }
     trolley.userData.movingS = false;
@@ -432,6 +455,21 @@ function moveTrolleyW() {
         trolley.position.x += 0.1
     }
     trolley.userData.movingW = false;
+}
+
+function extendCable() {
+    // TODO: change 50 to crane height
+    if (hookCable.scale.y < 50) {
+        hookCable.scale.y += 0.01
+    }
+    trolley.userData.extending = false;
+}
+
+function retractCable() {
+    if (hookCable.scale.y > 0) {
+        hookCable.scale.y -= 0.01
+    }
+    trolley.userData.retracting = false;
 }
 
 function onResize() {
@@ -450,14 +488,14 @@ function onKeyDown(e) {
     'use strict';
 
     switch (e.keyCode) {
-        case 65: //A
-        case 97: //a
-            scene.traverse(function (node) {
-                if (node instanceof THREE.Mesh) {
-                    node.material.wireframe = !node.material.wireframe;
-                }
-            });
-            break;
+        //case 65: //A
+        //case 97: //a
+        //    scene.traverse(function (node) {
+        //        if (node instanceof THREE.Mesh) {
+        //            node.material.wireframe = !node.material.wireframe;
+        //        }
+        //    });
+        //    break;
         case 49: // Tecla '1'
             switchToCameraFrontal();
             break;
@@ -482,10 +520,20 @@ function onKeyDown(e) {
         case 83: // Tecla 'S' e 's'
             trolley.userData.movingS = true;
             break;
+        case  81: // Tecla 'Q' e 'q'
+            upperCrane.userData.rotatingQ = true; 
+            break;
+        case 65: // Tecla 'A' e 'a'
+            upperCrane.userData.rotatingA = true;
+            break;
+        case  69: // Tecla 'E' e 'e'
+            trolley.userData.extending = true; 
+            break;
+        case 68: // Tecla 'D' e 'd'
+            trolley.userData.retracting = true;
+            break;
     }
 }
-
-
 
 /*
     +----------------------------------------+
