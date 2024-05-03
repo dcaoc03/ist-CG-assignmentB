@@ -32,9 +32,9 @@ var hook, trolley, upperCrane;
 // KEYWORD-CONTROLLED VARIABLES
 
 var theta2 = 0;
-var delta1 = 20;
+var delta1 = 5;
 var delta2 = 10;
-var changed;
+var changedTrolleyW;
 
 // OBJECT CONSTANTS
 
@@ -146,6 +146,7 @@ function createTrolley(obj, x, y, z) {
     'use strict';
 
     trolley = new THREE.Object3D();
+    trolley.userData = { movingW: false, movingS: false};
 
     // Trolley Car creation
     material = new THREE.MeshBasicMaterial({ color:trolleyCarColor, wireframe: false });
@@ -269,7 +270,7 @@ function createCameraFrontal() {
         window.innerHeight / 40,   // Top
         window.innerHeight / -40,  // Bottom
         1,                         // Near plane
-        100                        // Far plane
+        200                        // Far plane
     );
     cameraFrontal.position.x = 110; // 25
     cameraFrontal.position.y = 0; // -25
@@ -357,6 +358,32 @@ function createCameraMovel() {
     +--------------------+
 */
 
+function update() {
+    console.log("updating");
+    if (trolley.userData.movingW) {
+        console.log("W");
+        moveTrolleyW();
+    }
+    if (trolley.userData.movingS) {
+        console.log("S");
+        moveTrolleyS();
+    }
+}
+
+function moveTrolleyS() {
+    if (trolley.position.x > trolleyCarWidth) {
+        trolley.position.x -= 0.1
+    }
+    trolley.userData.movingS = false;
+}
+
+function moveTrolleyW() {
+    if (trolley.position.x < jibWidth) {
+        trolley.position.x += 0.1
+    }
+    trolley.userData.movingW = false;
+}
+
 function onResize() {
     'use strict';
 
@@ -391,6 +418,12 @@ function onKeyDown(e) {
         case 54: // Tecla '6'
             switchToCameraMovel();
             break;
+        case 87: // Tecla 'W' e 'w'
+            trolley.userData.movingW = true;
+            break;
+        case 83: // Tecla 'S' e 's'
+            trolley.userData.movingS = true;
+            break;
     }
 }
 
@@ -403,6 +436,8 @@ function onKeyDown(e) {
     |                                        |
     +----------------------------------------+
 */
+
+
 
 function render() {
     'use strict';
@@ -436,21 +471,14 @@ function init() {
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("resize", onResize);
 
-    changed = false
+    changedTrolleyW = false
 }
 
 function animate() {
     'use strict';
 
-    /*if (ball.userData.jumping) {
-        ball.userData.step += velocity;
-        ball.position.y = Math.abs(30 * (Math.sin(ball.userData.step)));
-        ball.position.z = 15 * (Math.cos(ball.userData.step));
-    }*/
-    if (changed) {
-        changed = false;
-        //geometry.applyMatrix4( new THREE.Matrix4().makeRotationAxis( new THREE.Vector3( 1, 0, 1 ).normalize(), Math.PI/3 ) );
-    }
+    update();
+
     render();
 
     requestAnimationFrame(animate);
