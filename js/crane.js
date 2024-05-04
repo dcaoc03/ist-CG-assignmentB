@@ -10,17 +10,22 @@ import * as THREE from 'three';
 
 // GLOBAL VARIABLES (used in several objects)
 
-var camera, cameraFrontal, cameraLateral, cameraTopo, cameraOrtogonal, cameraPerspetiva, cameraMovel
+var camera, cameraFrontal, cameraLateral, cameraTopo, cameraOrtogonal, cameraPerspetiva, cameraMovel;
 
 var scene, renderer;
 
 var geometry, material, mesh;
 
-var velocity;
-
 var axis;
 
 var keys = {};
+
+// Movement velocity
+
+const velocityRetract = new THREE.Vector3(0, -0.05, 0);
+const velocityExtend = new THREE.Vector3(0, 0.025, 0);
+const velocityS = new THREE.Vector3(-0.1, 0, 0);
+const velocityW = new THREE.Vector3(0.1, 0, 0);
 
 // Background color
 
@@ -28,14 +33,12 @@ const backgroundColor = 0x79abfc; // Light blue color
 
 // OBJECT DECLARATION
 
-var hook, trolley, upperCrane, hookCable;
+var hook, trolley, upperCrane, hookCable, claws = [];
 
 // KEYWORD-CONTROLLED VARIABLES
 
-var theta2 = 0;
 var delta1 = 5;
 var delta2 = 10;
-var changedTrolleyW;
 
 // OBJECT CONSTANTS
 
@@ -134,13 +137,15 @@ function createClaw(obj, x, y, z) {
     'use strict';
 
     geometry = new THREE.TetrahedronGeometry(clawRadius);
+    geometry.scale(1.8, 1.8, 1.8);
     material = new THREE.MeshBasicMaterial({ color: clawColor, wireframe: false });
     mesh = new THREE.Mesh(geometry, material);
 
     geometry.applyMatrix4( new THREE.Matrix4().makeRotationAxis( new THREE.Vector3( 1, 0, 1 ).normalize(), Math.PI/3.3 ) );
-    geometry.translate(x, y-(1/3)*clawRadius, z);
+    geometry.translate(x, y-(1/3)*clawRadius+0.2, z);
 
     obj.add(mesh);
+    claws.push(mesh)
 }
 
 function createHook(obj, x, y, z) {
@@ -171,13 +176,12 @@ function createTrolley(obj, x, y, z) {
     'use strict';
 
     trolley = new THREE.Object3D();
-    trolley.userData = { movingW: false, movingS: false, extending: false, retracting: false};
 
     // Trolley Car creation
     material = new THREE.MeshBasicMaterial({ color:trolleyCarColor, wireframe: false });
     geometry = new THREE.BoxGeometry(trolleyCarWidth, trolleyCarHeight, trolleyCarDepth);
     trolley.add(new THREE.Mesh(geometry, material));
-
+    
     // Hook Cable creation
     material = new THREE.MeshBasicMaterial({ color: hookCableColor, wireframe: false });
     geometry = new THREE.CylinderGeometry(hookCableRadius, hookCableRadius, delta2);
@@ -196,7 +200,6 @@ function createUpperCrane() {
     'use strict';
 
     upperCrane = new THREE.Object3D();
-    upperCrane.userData = { rotatingA: false, rotatingQ: false};
 
     // Jib creation
     material = new THREE.MeshBasicMaterial({ color: jibColor, wireframe: false });
@@ -290,31 +293,43 @@ function createScene() {
 
 // Trocar para camera frontal
 function switchToCameraFrontal() {
+    'use strict';
+
     camera = cameraFrontal;
 }
 
 // Trocar para camera lateral
 function switchToCameraLateral() {
+    'use strict';
+
     camera = cameraLateral;
 }
 
 // Trocar para camera de topo
 function switchToCameraTopo() {
+    'use strict';
+
     camera = cameraTopo;
 }
 
 // Trocar para camera ortogonal
 function switchToCameraOrtogonal() {
+    'use strict';
+
     camera = cameraOrtogonal;
 }
 
 // Trocar para camera perspetiva
 function switchToCameraPerspetiva() {
+    'use strict';
+
     camera = cameraPerspetiva;
 }
 
 // Trocar para camera Movel
 function switchToCameraMovel() {
+    'use strict';
+
     camera = cameraMovel;
 }
 
@@ -395,6 +410,8 @@ function createCameraPerspetiva() {
 }
 
 function createCameraMovel() {
+    'use strict';
+
     cameraMovel = new THREE.PerspectiveCamera(70,
         window.innerWidth / window.innerHeight,
         1,
@@ -413,38 +430,73 @@ function createCameraMovel() {
     +--------------------+
 */
 
+function rotateClawsF() {
+    'use strict';
+     
+    console.log(claws[0].rotation.x);
+    if (claws[0].rotation.x < 0.5) {
+        claws[0].rotation.x += Math.PI / 180
+        claws[1].rotation.x -= Math.PI / 180
+        claws[2].rotation.z -= Math.PI / 180
+        claws[3].rotation.z += Math.PI / 180
+    }
+}
+
+function rotateClawsR() {
+    'use strict';
+
+    if (claws[0].rotation.x > 0) {
+        claws[0].rotation.x -= Math.PI / 180
+        claws[1].rotation.x += Math.PI / 180
+        claws[2].rotation.z += Math.PI / 180
+        claws[3].rotation.z -= Math.PI / 180
+    }}
 
 function rotateUpperCraneA() {
+    'use strict';
+
     upperCrane.rotation.y += Math.PI / 180;
 }
 
 function rotateUpperCraneQ() {
+    'use strict';
+
     upperCrane.rotation.y -= Math.PI / 180;
 }
 
 function moveTrolleyS() {
+    'use strict';
+
     // For some reason cabinWidth != actualCabinWidth
     if (trolley.position.x > cabinWidth + 0.2) {
-        trolley.position.x -= 0.1
+        trolley.position.add(velocityS);
     }
 }
 
 function moveTrolleyW() {
+    'use strict';
+
     if (trolley.position.x < jibWidth) {
-        trolley.position.x += 0.1
+        trolley.position.add(velocityW);
     }
 }
 
 function extendCable() {
+    'use strict';
+
     // TODO: change 50 to crane height
     if (hookCable.scale.y < 50) {
-        hookCable.scale.y += 0.01
+        hookCable.scale.add(velocityExtend);
+        hookCable.position.y += 0.015;
     }
 }
 
 function retractCable() {
+    'use strict';
+
     if (hookCable.scale.y > 0) {
-        hookCable.scale.y -= 0.01
+        hookCable.scale.add(velocityRetract);
+        hookCable.position.y -= 0.015;
     }
 }
 
@@ -461,14 +513,20 @@ function onResize() {
 }
 
 function onKeyDown(event) {
+    'use strict';
+
     keys[event.keyCode] = true;
 }
 
 function onKeyUp(event) {
+    'use strict';
+
     keys[event.keyCode] = false;
 }
 
 function update() {
+    'use strict';
+
     if (keys[49]) { // Tecla '1'
         switchToCameraFrontal();
     }
@@ -504,6 +562,12 @@ function update() {
     }
     if (keys[68]) { // Tecla 'D' ou 'd'
         retractCable();
+    }
+    if (keys[82]) { // Tecla 'R' ou 'r'
+        rotateClawsR();
+    }
+    if (keys[70]) { // Tecla 'F' ou 'f'
+        rotateClawsF();
     }
 }
 
@@ -542,15 +606,12 @@ function init() {
 
     switchToCameraFrontal();
     
-    velocity = 0.10;
-
     render();
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
     window.addEventListener("resize", onResize);
 
-    changedTrolleyW = false
 }
 
 function animate() {
