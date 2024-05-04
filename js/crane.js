@@ -10,17 +10,22 @@ import * as THREE from 'three';
 
 // GLOBAL VARIABLES (used in several objects)
 
-var camera, cameraFrontal, cameraLateral, cameraTopo, cameraOrtogonal, cameraPerspetiva, cameraMovel
+var camera, cameraFrontal, cameraLateral, cameraTopo, cameraOrtogonal, cameraPerspetiva, cameraMovel;
 
 var scene, renderer;
 
 var geometry, material, mesh;
 
-var velocity;
-
 var axis;
 
 var keys = {};
+
+// Movement velocity
+
+const velocityRetract = new THREE.Vector3(0, -0.05, 0);
+const velocityExtend = new THREE.Vector3(0, 0.025, 0);
+const velocityS = new THREE.Vector3(-0.1, 0, 0);
+const velocityW = new THREE.Vector3(0.1, 0, 0);
 
 // Background color
 
@@ -28,15 +33,13 @@ const backgroundColor = 0x79abfc; // Light blue color
 
 // OBJECT DECLARATION
 
-var hook, trolley, upperCrane, hookCable, hook, base;
+var hook, trolley, upperCrane, hookCable, claws = [], hook, base;
 var container;
 
 // KEYWORD-CONTROLLED VARIABLES
 
-var theta2 = 0;
 var delta1 = 5;
 var delta2 = 10;
-var changedTrolleyW;
 
 // OBJECT CONSTANTS
 
@@ -182,7 +185,8 @@ function createClaw(obj, x, y, z, rotationAxis) {
     material = new THREE.MeshBasicMaterial({ color: clawColor, wireframe: false });
     mesh = new THREE.Mesh(geometry, material);
 
-    if (rotationAxis == 'x') {
+    geometry.applyMatrix4( new THREE.Matrix4().makeRotationAxis( new THREE.Vector3( 1, 0, 1 ).normalize(), Math.PI/3.3 ) );
+    /*if (rotationAxis == 'x') {
         if (z > 0)
             geometry.rotateX(5*Math.PI/6);
         else if (z < 0)
@@ -193,11 +197,11 @@ function createClaw(obj, x, y, z, rotationAxis) {
             geometry.rotateZ(-5*Math.PI/6);
         else if (x < 0)
             geometry.rotateZ(5*Math.PI/6);
-    }
-
-    geometry.translate(x, y, z);
+    }*/
+    geometry.translate(x, y-(1/3)*clawRadius, z);
 
     obj.add(mesh);
+    claws.push(mesh)
 }
 
 function createHook(obj, x, y, z) {
@@ -228,13 +232,12 @@ function createTrolley(obj, x, y, z) {
     'use strict';
 
     trolley = new THREE.Object3D();
-    trolley.userData = { movingW: false, movingS: false, extending: false, retracting: false};
 
     // Trolley Car creation
     material = new THREE.MeshBasicMaterial({ color:trolleyCarColor, wireframe: false });
     geometry = new THREE.BoxGeometry(trolleyCarWidth, trolleyCarHeight, trolleyCarDepth);
     trolley.add(new THREE.Mesh(geometry, material));
-
+    
     // Hook Cable creation
     material = new THREE.MeshBasicMaterial({ color: hookCableColor, wireframe: false });
     geometry = new THREE.CylinderGeometry(hookCableRadius, hookCableRadius, delta2);
@@ -253,7 +256,6 @@ function createUpperCrane(obj, x, y, z) {
     'use strict';
 
     upperCrane = new THREE.Object3D();
-    upperCrane.userData = { rotatingA: false, rotatingQ: false};
 
     // Jib creation
     material = new THREE.MeshBasicMaterial({ color: jibColor, wireframe: false });
@@ -435,48 +437,60 @@ function createScene() {
 
 // Trocar para camera frontal
 function switchToCameraFrontal() {
+    'use strict';
+
     camera = cameraFrontal;
 }
 
 // Trocar para camera lateral
 function switchToCameraLateral() {
+    'use strict';
+
     camera = cameraLateral;
 }
 
 // Trocar para camera de topo
 function switchToCameraTopo() {
+    'use strict';
+
     camera = cameraTopo;
 }
 
 // Trocar para camera ortogonal
 function switchToCameraOrtogonal() {
+    'use strict';
+
     camera = cameraOrtogonal;
 }
 
 // Trocar para camera perspetiva
 function switchToCameraPerspetiva() {
+    'use strict';
+
     camera = cameraPerspetiva;
 }
 
 // Trocar para camera Movel
 function switchToCameraMovel() {
+    'use strict';
+
     camera = cameraMovel;
 }
 
 function createCameraFrontal() {
     'use strict';
     cameraFrontal = new THREE.OrthographicCamera(
-        window.innerWidth / -30,   // Left
-        window.innerWidth / 30,    // Right
-        window.innerHeight / 30,   // Top
-        window.innerHeight / -30,  // Bottom
+        window.innerWidth / -20,   // Left
+        window.innerWidth / 20,    // Right
+        window.innerHeight / 15,   // Top
+        window.innerHeight / -15,  // Bottom
         1,                         // Near plane
         200                        // Far plane
     );
-    cameraFrontal.position.x = 110; // 25
+    cameraFrontal.position.x = 90; // 25
     cameraFrontal.position.y = 0; // -25
     cameraFrontal.position.z = 0; // 25
-    cameraFrontal.lookAt(scene.position);
+    cameraFrontal.lookAt(0,14,0);
 }
 
 function createCameraLateral() {
@@ -491,22 +505,22 @@ function createCameraLateral() {
     );
     cameraLateral.position.x = 0;
     cameraLateral.position.y = 0;
-    cameraLateral.position.z = 70;
-    cameraLateral.lookAt(scene.position);
+    cameraLateral.position.z = 150;
+    cameraLateral.lookAt(0,20,0);
 }
  
 function createCameraTopo() {
     'use strict';
     cameraTopo = new THREE.OrthographicCamera(
-        window.innerWidth / -30,   // Left
-        window.innerWidth / 30,    // Right
-        window.innerHeight / 30,   // Top
-        window.innerHeight / -30,  // Bottom
+        window.innerWidth / -20,   // Left
+        window.innerWidth / 20,    // Right
+        window.innerHeight / 20,   // Top
+        window.innerHeight / -20,  // Bottom
         1,                         // Near plane
         200                        // Far plane
     );
     cameraTopo.position.x = 0;
-    cameraTopo.position.y = 50;
+    cameraTopo.position.y = 80;
     cameraTopo.position.z = 0;
     cameraTopo.lookAt(scene.position);
 }
@@ -514,17 +528,17 @@ function createCameraTopo() {
 function createCameraOrtogonal() {
     'use strict';
     cameraOrtogonal = new THREE.OrthographicCamera(
-        window.innerWidth / -30,   // Left
-        window.innerWidth / 30,    // Right
-        window.innerHeight / 30,   // Top
-        window.innerHeight / -30,  // Bottom
+        window.innerWidth / -20,   // Left
+        window.innerWidth / 20,    // Right
+        window.innerHeight / 20,   // Top
+        window.innerHeight / -20,  // Bottom
         1,                         // Near plane
         200                        // Far plane
     );
-    cameraOrtogonal.position.x = 50;
-    cameraOrtogonal.position.y = 50;
-    cameraOrtogonal.position.z = 50;
-    cameraOrtogonal.lookAt(scene.position);
+    cameraOrtogonal.position.x = 80;
+    cameraOrtogonal.position.y = 80;
+    cameraOrtogonal.position.z = 80;
+    cameraOrtogonal.lookAt(0,20,0);
 }
 
 function createCameraPerspetiva() {
@@ -533,21 +547,23 @@ function createCameraPerspetiva() {
                                          window.innerWidth / window.innerHeight,
                                          1,
                                          1000);
-    cameraPerspetiva.position.x = 35;
-    cameraPerspetiva.position.y = 35;
-    cameraPerspetiva.position.z = 35;
-    cameraPerspetiva.lookAt(scene.position);
+    cameraPerspetiva.position.x = 40;
+    cameraPerspetiva.position.y = 50;
+    cameraPerspetiva.position.z = 40;
+    cameraPerspetiva.lookAt(0,20,0);
 }
 
 function createCameraMovel() {
+    'use strict';
+
     cameraMovel = new THREE.PerspectiveCamera(70,
         window.innerWidth / window.innerHeight,
-        1,
+        2,
         100); 
     cameraMovel.position.x = 0;
     cameraMovel.position.y = -hookBlockHeight/2;
     cameraMovel.position.z = 0;
-    cameraMovel.rotation.set(-Math.PI / 2, 0, 0); 
+    cameraMovel.rotation.set(-Math.PI / 2, 0, -Math.PI / 2); 
 }
 
 /*
@@ -558,38 +574,73 @@ function createCameraMovel() {
     +--------------------+
 */
 
+function rotateClawsF() {
+    'use strict';
+     
+    console.log(claws[0].rotation.x);
+    if (claws[0].rotation.x < 0.5) {
+        claws[0].rotation.x += Math.PI / 180
+        claws[1].rotation.x -= Math.PI / 180
+        claws[2].rotation.z -= Math.PI / 180
+        claws[3].rotation.z += Math.PI / 180
+    }
+}
+
+function rotateClawsR() {
+    'use strict';
+
+    if (claws[0].rotation.x > 0) {
+        claws[0].rotation.x -= Math.PI / 180
+        claws[1].rotation.x += Math.PI / 180
+        claws[2].rotation.z += Math.PI / 180
+        claws[3].rotation.z -= Math.PI / 180
+    }}
 
 function rotateUpperCraneA() {
+    'use strict';
+
     upperCrane.rotation.y += Math.PI / 180;
 }
 
 function rotateUpperCraneQ() {
+    'use strict';
+
     upperCrane.rotation.y -= Math.PI / 180;
 }
 
 function moveTrolleyS() {
+    'use strict';
+
     // For some reason cabinWidth != actualCabinWidth
     if (trolley.position.x > cabinWidth + 0.2) {
-        trolley.position.x -= 0.1
+        trolley.position.add(velocityS);
     }
 }
 
 function moveTrolleyW() {
+    'use strict';
+
     if (trolley.position.x < jibWidth) {
-        trolley.position.x += 0.1
+        trolley.position.add(velocityW);
     }
 }
 
 function extendCable() {
+    'use strict';
+
     // TODO: change 50 to crane height
     if (hookCable.scale.y < 50) {
-        hookCable.scale.y += 0.01
+        hookCable.scale.add(velocityExtend);
+        hookCable.position.y += 0.015;
     }
 }
 
 function retractCable() {
+    'use strict';
+
     if (hookCable.scale.y > 0) {
-        hookCable.scale.y -= 0.01
+        hookCable.scale.add(velocityRetract);
+        hookCable.position.y -= 0.015;
     }
 }
 
@@ -606,14 +657,20 @@ function onResize() {
 }
 
 function onKeyDown(event) {
+    'use strict';
+
     keys[event.keyCode] = true;
 }
 
 function onKeyUp(event) {
+    'use strict';
+
     keys[event.keyCode] = false;
 }
 
 function update() {
+    'use strict';
+
     if (keys[49]) { // Tecla '1'
         switchToCameraFrontal();
     }
@@ -649,6 +706,12 @@ function update() {
     }
     if (keys[68]) { // Tecla 'D' ou 'd'
         retractCable();
+    }
+    if (keys[82]) { // Tecla 'R' ou 'r'
+        rotateClawsR();
+    }
+    if (keys[70]) { // Tecla 'F' ou 'f'
+        rotateClawsF();
     }
 }
 
@@ -687,15 +750,12 @@ function init() {
 
     switchToCameraFrontal();
     
-    velocity = 0.10;
-
     render();
 
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
     window.addEventListener("resize", onResize);
 
-    changedTrolleyW = false
 }
 
 function animate() {
