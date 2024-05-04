@@ -28,7 +28,7 @@ const backgroundColor = 0x79abfc; // Light blue color
 
 // OBJECT DECLARATION
 
-var hook, trolley, upperCrane, hookCable;
+var hook, trolley, upperCrane, hookCable, base;
 
 // KEYWORD-CONTROLLED VARIABLES
 
@@ -121,6 +121,21 @@ var changedTrolleyW;
 
     const turntableColor = 0xff9900;
 
+    // Tower
+    const towerWidth = 3;
+    const towerHeight = 20;
+    const towerDepth = 3;
+
+    const towerColor = 0xffcc00;
+
+    // Base
+    const baseWidth = 5;
+    const baseHeight = 3;
+    const baseDepth = 4;
+
+    const baseColor = 0x666666;
+
+
 
 /*
     +-------------------------------+
@@ -192,7 +207,7 @@ function createTrolley(obj, x, y, z) {
     obj.add(trolley);
 }
 
-function createUpperCrane() {
+function createUpperCrane(obj, x, y, z) {
     'use strict';
 
     upperCrane = new THREE.Object3D();
@@ -259,9 +274,34 @@ function createUpperCrane() {
     // Trolley creation
     createTrolley(upperCrane, trolleyCarWidth/2+delta1, -trolleyCarHeight/2+cabinHeight+turntableHeight, 0);
 
+    upperCrane.position.set(x, y, z);
     upperCrane.rotation.set(0, 0, 0);
 
-    scene.add(upperCrane);
+    obj.add(upperCrane);
+}
+
+function createCrane() {
+    'use strict'
+
+    base = new THREE.Object3D();
+
+    // Tower creation
+    material = new THREE.MeshBasicMaterial({ color: towerColor, wireframe: false });
+    geometry = new THREE.BoxGeometry(towerWidth, towerHeight, towerDepth);
+    geometry.translate(0, towerHeight/2+baseHeight/2, 0);
+    mesh = new THREE.Mesh(geometry, material);
+    base.add(mesh);
+
+    // Base creation
+    material = new THREE.MeshBasicMaterial({ color: baseColor, wireframe: false });
+    geometry = new THREE.BoxGeometry(baseWidth, baseHeight, baseDepth);
+    mesh = new THREE.Mesh(geometry, material);
+    base.add(mesh);
+
+    // Upper crane creation
+    createUpperCrane(base, 0, towerHeight+baseHeight/2, 0);
+
+    scene.add(base);
 }
 
 function createScene() {
@@ -277,7 +317,7 @@ function createScene() {
     scene.add(axis);
 
 
-    createUpperCrane();
+    createCrane();
 }
 
 /*
