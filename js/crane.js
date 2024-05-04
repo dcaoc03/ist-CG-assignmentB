@@ -28,7 +28,7 @@ const backgroundColor = 0x79abfc; // Light blue color
 
 // OBJECT DECLARATION
 
-var hook, trolley, upperCrane, hookCable, base;
+var hook, trolley, upperCrane, hookCable, hook, base;
 
 // KEYWORD-CONTROLLED VARIABLES
 
@@ -45,7 +45,7 @@ var changedTrolleyW;
     const clawColor = 0xcccccc;
 
     // Hook dimensions
-    const hookBlockRadius = 1.5;
+    const hookBlockRadius = 2;
     const hookBlockHeight = 1;
 
     const hookBlockColor = 0xffcc00;
@@ -116,14 +116,14 @@ var changedTrolleyW;
     const counterweightColor = 0x666666;
 
     // Turntable
-    const turntableRadius = 1.5;
+    const turntableRadius = 1.7;
     const turntableHeight = 1;
 
     const turntableColor = 0xff9900;
 
     // Tower
     const towerWidth = 3;
-    const towerHeight = 20;
+    const towerHeight = 30;
     const towerDepth = 3;
 
     const towerColor = 0xffcc00;
@@ -145,15 +145,45 @@ var changedTrolleyW;
     +-------------------------------+
 */
 
-function createClaw(obj, x, y, z) {
+function createClaw(obj, x, y, z, rotationAxis) {
     'use strict';
 
-    geometry = new THREE.TetrahedronGeometry(clawRadius);
+    geometry = new THREE.BufferGeometry();
+
+    const vertices = new Float32Array( [
+        -0.5, 0.0,  -0.5, // v0
+        0.5, 0.0,  0.0, // v1
+        0.0,  0.0,  0.5, // v2
+        0.0,  2.0,  0.0, // v3
+    ] );
+
+    const indices = [
+        0, 2, 3,
+        1, 3, 2,
+        1, 0, 3,
+        0, 1, 2
+    ];
+
+    geometry.setIndex( indices );
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+
     material = new THREE.MeshBasicMaterial({ color: clawColor, wireframe: false });
     mesh = new THREE.Mesh(geometry, material);
 
-    geometry.applyMatrix4( new THREE.Matrix4().makeRotationAxis( new THREE.Vector3( 1, 0, 1 ).normalize(), Math.PI/3.3 ) );
-    geometry.translate(x, y-(1/3)*clawRadius, z);
+    if (rotationAxis == 'x') {
+        if (z > 0)
+            geometry.rotateX(5*Math.PI/6);
+        else if (z < 0)
+            geometry.rotateX(-5*Math.PI/6);
+    }
+    else if (rotationAxis == 'z') {
+        if (x > 0)
+            geometry.rotateZ(-5*Math.PI/6);
+        else if (x < 0)
+            geometry.rotateZ(5*Math.PI/6);
+    }
+
+    geometry.translate(x, y, z);
 
     obj.add(mesh);
 }
@@ -171,10 +201,10 @@ function createHook(obj, x, y, z) {
     hook.add(mesh);
 
     // 4 Hook Claws creation 
-    createClaw(hook, 0, -hookBlockHeight, hookBlockRadius);
-    createClaw(hook, 0, -hookBlockHeight, -hookBlockRadius);
-    createClaw(hook, hookBlockRadius, -hookBlockHeight, 0);
-    createClaw(hook, -hookBlockRadius, -hookBlockHeight, 0);
+    createClaw(hook, 0, -hookBlockHeight, 2*hookBlockRadius/3, 'x');
+    createClaw(hook, 0, -hookBlockHeight, -2*hookBlockRadius/3, 'x');
+    createClaw(hook, 2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
+    createClaw(hook, -2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
 
     createCameraMovel();
     hook.add(cameraMovel);
