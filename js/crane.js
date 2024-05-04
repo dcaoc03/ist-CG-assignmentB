@@ -29,6 +29,7 @@ const backgroundColor = 0x79abfc; // Light blue color
 // OBJECT DECLARATION
 
 var hook, trolley, upperCrane, hookCable, hook, base;
+var container;
 
 // KEYWORD-CONTROLLED VARIABLES
 
@@ -134,6 +135,17 @@ var changedTrolleyW;
     const baseDepth = 4;
 
     const baseColor = 0x666666;
+
+    // Container
+    const containerWidth = 7;
+    const containerHeight = 4;
+    const containerDepth = 5;
+
+    const containerColor = 0x00cc00;
+    const containerFloorColor = 0x005500;
+
+    const containerOffsetX = 15;
+    const containerOffsetZ = 5;
 
 
 
@@ -334,6 +346,68 @@ function createCrane() {
     scene.add(base);
 }
 
+function createContainer() {
+    'use strict';
+
+    container = new THREE.Object3D();
+
+    const vertices = new Float32Array( [
+        containerWidth/2, containerHeight/2,  containerDepth/2, // v0
+        containerWidth/2, containerHeight/2,  -containerDepth/2, // v1
+        -containerWidth/2, containerHeight/2,  -containerDepth/2, // v2
+        -containerWidth/2, containerHeight/2,  containerDepth/2, // v3
+
+        containerWidth/2, -containerHeight/2,  containerDepth/2, // v4
+        containerWidth/2, -containerHeight/2,  -containerDepth/2, // v5
+        -containerWidth/2, -containerHeight/2,  -containerDepth/2, // v6
+        -containerWidth/2, -containerHeight/2,  containerDepth/2, // v7
+    ] );
+
+    const floorVertices = new Float32Array( [
+        containerWidth/2, -containerHeight/2,  containerDepth/2, // v4
+        containerWidth/2, -containerHeight/2,  -containerDepth/2, // v5
+        -containerWidth/2, -containerHeight/2,  -containerDepth/2, // v6
+        -containerWidth/2, -containerHeight/2,  containerDepth/2, // v7
+    ] );
+
+    // Container walls
+    const indices = [
+        0, 5, 1,    0, 1, 5,
+        0, 4, 5,    0, 5, 4,
+        1, 5, 6,    1, 6, 5,
+        1, 6, 2,    1, 2, 6,
+        2, 6, 7,    2, 7, 6,
+        2, 7, 3,    2, 3, 7,
+        0, 3, 7,    0, 7, 3,
+        0, 7, 4,    0, 4, 7
+    ];
+
+    geometry = new THREE.BufferGeometry();
+    geometry.setIndex( indices );
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+    material = new THREE.MeshBasicMaterial({ color: containerColor, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+    
+    container.add(mesh);
+
+    // Container floor
+    const floorIndices = [
+        0, 1, 2,    0, 2, 1,
+        0, 2, 3,    0, 3, 2
+    ]
+    geometry = new THREE.BufferGeometry();
+    geometry.setIndex( floorIndices );
+    geometry.setAttribute( 'position', new THREE.BufferAttribute( floorVertices, 3 ) );
+    material = new THREE.MeshBasicMaterial({ color: containerFloorColor, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+    
+    container.add(mesh);
+
+
+    container.position.set(containerOffsetX, containerHeight/2-baseHeight/2, containerOffsetZ);
+    scene.add(container);
+}
+
 function createScene() {
     'use strict';
 
@@ -348,6 +422,7 @@ function createScene() {
 
 
     createCrane();
+    createContainer();
 }
 
 /*
