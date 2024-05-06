@@ -33,7 +33,7 @@ const backgroundColor = 0x79abfc; // Light blue color
 
 // OBJECT DECLARATION
 
-var hook, trolley, upperCrane, hookCable, claws = [], hook, base;
+var claw, hook, trolley, upperCrane, hookCable, claws = [], hook, base;
 var container;
 
 // KEYWORD-CONTROLLED VARIABLES
@@ -163,6 +163,8 @@ var delta2 = 10;
 function createClaw(obj, x, y, z, rotationAxis) {
     'use strict';
 
+    claw = new THREE.Object3D();
+
     geometry = new THREE.BufferGeometry();
 
     const vertices = new Float32Array( [
@@ -185,8 +187,8 @@ function createClaw(obj, x, y, z, rotationAxis) {
     material = new THREE.MeshBasicMaterial({ color: clawColor, wireframe: false });
     mesh = new THREE.Mesh(geometry, material);
 
-    geometry.applyMatrix4( new THREE.Matrix4().makeRotationAxis( new THREE.Vector3( 1, 0, 1 ).normalize(), Math.PI/3.3 ) );
-    /*if (rotationAxis == 'x') {
+    // geometry.applyMatrix4( new THREE.Matrix4().makeRotationAxis( new THREE.Vector3( 1, 0, 1 ).normalize(), Math.PI/3.3 ) );
+    if (rotationAxis == 'x') {
         if (z > 0)
             geometry.rotateX(5*Math.PI/6);
         else if (z < 0)
@@ -197,10 +199,11 @@ function createClaw(obj, x, y, z, rotationAxis) {
             geometry.rotateZ(-5*Math.PI/6);
         else if (x < 0)
             geometry.rotateZ(5*Math.PI/6);
-    }*/
-    geometry.translate(x, y-(1/3)*clawRadius, z);
+    }
+    claw.add(mesh);
+    claw.position.set(x, y, z);
 
-    obj.add(mesh);
+    obj.add(claw);
     claws.push(mesh)
 }
 
@@ -209,18 +212,18 @@ function createHook(obj, x, y, z) {
 
     hook = new THREE.Object3D();
 
+    // 4 Hook Claws creation 
+    createClaw(hook, 0, -hookBlockHeight, 2*hookBlockRadius/3, 'x');
+    createClaw(hook, 0, -hookBlockHeight, -2*hookBlockRadius/3, 'x');
+    createClaw(hook, 2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
+    createClaw(hook, -2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
+
     // Hook Block creation
     material = new THREE.MeshBasicMaterial({ color: hookBlockColor, wireframe: false });
     geometry = new THREE.CylinderGeometry(hookBlockRadius, hookBlockRadius, hookBlockHeight);
     geometry.translate(0, -hookBlockHeight/2, 0);
     mesh = new THREE.Mesh(geometry, material);
     hook.add(mesh);
-
-    // 4 Hook Claws creation 
-    createClaw(hook, 0, -hookBlockHeight, 2*hookBlockRadius/3, 'x');
-    createClaw(hook, 0, -hookBlockHeight, -2*hookBlockRadius/3, 'x');
-    createClaw(hook, 2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
-    createClaw(hook, -2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
 
     createCameraMovel();
     hook.add(cameraMovel);
@@ -578,7 +581,7 @@ function rotateClawsF() {
     'use strict';
      
     console.log(claws[0].rotation.x);
-    if (claws[0].rotation.x < 0.5) {
+    if (claws[0].rotation.x < 1) {
         claws[0].rotation.x += Math.PI / 180
         claws[1].rotation.x -= Math.PI / 180
         claws[2].rotation.z -= Math.PI / 180
