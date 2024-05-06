@@ -34,7 +34,7 @@ const backgroundColor = 0x79abfc; // Light blue color
 // OBJECT DECLARATION
 
 var claw, hookBlock, hook, trolley, upperCrane, hookCable, claws = [], base;
-var container;
+var container, cube, dodecahedron, icosahedron, torus, torusKnot;
 
 // KEYWORD-CONTROLLED VARIABLES
 
@@ -141,15 +141,36 @@ var delta2 = 10;
     const baseColor = 0x666666;
 
     // Container
-    const containerWidth = 7;
+    const containerWidth = 12;
     const containerHeight = 4;
-    const containerDepth = 5;
+    const containerDepth = 9;
 
     const containerColor = 0x00cc00;
     const containerFloorColor = 0x005500;
+    const containerPosition = new THREE.Vector3(15, containerHeight/2-baseHeight/2, 6)
 
-    const containerOffsetX = 15;
-    const containerOffsetZ = 5;
+    // Objects
+    const cubeSide = 2;
+    const cubePosition = new THREE.Vector3(5, cubeSide/2-baseHeight/2, -5);
+    const cubeColor = 0x000055;
+
+    const dodecahedronRadius = 2;
+    const dodecahedronPosition = new THREE.Vector3(-20, dodecahedronRadius/2-baseHeight/2, 3);
+    const dodecahedronColor = 0x882233;
+
+    const icosahedronRadius = 1.3;
+    const icosahedronPosition = new THREE.Vector3(0, icosahedronRadius/2-baseHeight/2, 12);
+    const icosahedronColor = 0x008822;
+
+    const torusRadius = 2;
+    const torusTube = 1;
+    const torusPosition = new THREE.Vector3(20, torusRadius/2-baseHeight/2, 20);
+    const torusColor = 0x880088; 
+
+    const torusKnotRadius = 2;
+    const torusKnotTube = 1;
+    const torusKnotPosition = new THREE.Vector3(-5, torusKnotRadius/2-baseHeight/2, -10);
+    const torusKnotColor = 0xbb7700; 
 
 
 
@@ -421,8 +442,67 @@ function createContainer() {
     container.add(mesh);
 
 
-    container.position.set(containerOffsetX, containerHeight/2-baseHeight/2, containerOffsetZ);
+    container.position.set(containerPosition.x, containerPosition.y, containerPosition.z);
     scene.add(container);
+}
+
+function createObjects() {
+    'use strict';
+
+    cube = new THREE.Object3D();
+    dodecahedron = new THREE.Object3D();
+    icosahedron = new THREE.Object3D();
+    torus = new THREE.Object3D();
+    torusKnot = new THREE.Object3D();
+
+    // Cube creation
+    geometry = new THREE.BoxGeometry(cubeSide, cubeSide, cubeSide);
+    material = new THREE.MeshBasicMaterial({ color: cubeColor, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+    cube.add(mesh);
+    cube.position.set(cubePosition.x, cubePosition.y, cubePosition.z);
+    scene.add(cube);
+
+    // Dodecahedron creation
+    geometry = new THREE.DodecahedronGeometry(dodecahedronRadius);
+    material = new THREE.MeshBasicMaterial({ color: dodecahedronColor, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+    dodecahedron.add(mesh);
+    dodecahedron.position.set(dodecahedronPosition.x, dodecahedronPosition.y, dodecahedronPosition.z);
+    scene.add(dodecahedron);
+
+    // Icosahedron creation
+    geometry = new THREE.IcosahedronGeometry(icosahedronRadius);
+    material = new THREE.MeshBasicMaterial({ color: icosahedronColor, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+    icosahedron.add(mesh);
+    icosahedron.position.set(icosahedronPosition.x, icosahedronPosition.y, icosahedronPosition.z);
+    scene.add(icosahedron);
+
+    // Torus creation
+    geometry = new THREE.TorusGeometry(torusRadius, torusTube);
+    material = new THREE.MeshBasicMaterial({ color: torusColor, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+    torus.add(mesh);
+    torus.position.set(torusPosition.x, torusPosition.y, torusPosition.z);
+    scene.add(torus);
+
+    // Torus creation
+    geometry = new THREE.TorusGeometry(torusRadius, torusTube);
+    material = new THREE.MeshBasicMaterial({ color: torusColor, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+    torus.add(mesh);
+    torus.position.set(torusPosition.x, torusPosition.y, torusPosition.z);
+    scene.add(torus);
+
+    // Torus Knot creation
+    geometry = new THREE.TorusKnotGeometry(torusKnotRadius, torusKnotTube);
+    material = new THREE.MeshBasicMaterial({ color: torusKnotColor, wireframe: false });
+    mesh = new THREE.Mesh(geometry, material);
+    torusKnot.add(mesh);
+    torusKnot.position.set(torusKnotPosition.x, torusKnotPosition.y, torusKnotPosition.z);
+    scene.add(torusKnot);
+
 }
 
 function createScene() {
@@ -440,6 +520,7 @@ function createScene() {
 
     createCrane();
     createContainer();
+    createObjects();
 }
 
 /*
