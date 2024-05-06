@@ -33,7 +33,7 @@ const backgroundColor = 0x79abfc; // Light blue color
 
 // OBJECT DECLARATION
 
-var claw, hook, trolley, upperCrane, hookCable, claws = [], hook, base;
+var claw, hookBlock, hook, trolley, upperCrane, hookCable, claws = [], base;
 var container;
 
 // KEYWORD-CONTROLLED VARIABLES
@@ -56,6 +56,7 @@ var delta2 = 10;
 
     // Hook Cable Dimensions
     const hookCableRadius = 0.25;
+    const hookCableHeight = 10;             // initially the same oa delta2
 
     const hookCableColor = 0x888888;
 
@@ -207,26 +208,44 @@ function createClaw(obj, x, y, z, rotationAxis) {
     claws.push(mesh)
 }
 
-function createHook(obj, x, y, z) {
+function createHookBlock(obj, x, y, z) {
     'use strict';
 
-    hook = new THREE.Object3D();
+    hookBlock = new THREE.Object3D();
 
     // 4 Hook Claws creation 
-    createClaw(hook, 0, -hookBlockHeight, 2*hookBlockRadius/3, 'x');
-    createClaw(hook, 0, -hookBlockHeight, -2*hookBlockRadius/3, 'x');
-    createClaw(hook, 2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
-    createClaw(hook, -2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
+    createClaw(hookBlock, 0, -hookBlockHeight, 2*hookBlockRadius/3, 'x');
+    createClaw(hookBlock, 0, -hookBlockHeight, -2*hookBlockRadius/3, 'x');
+    createClaw(hookBlock, 2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
+    createClaw(hookBlock, -2*hookBlockRadius/3, -hookBlockHeight, 0, 'z');
 
     // Hook Block creation
     material = new THREE.MeshBasicMaterial({ color: hookBlockColor, wireframe: false });
     geometry = new THREE.CylinderGeometry(hookBlockRadius, hookBlockRadius, hookBlockHeight);
     geometry.translate(0, -hookBlockHeight/2, 0);
     mesh = new THREE.Mesh(geometry, material);
-    hook.add(mesh);
+    hookBlock.add(mesh);
 
     createCameraMovel();
-    hook.add(cameraMovel);
+    hookBlock.add(cameraMovel);
+    hookBlock.position.set(x, y, z);
+    obj.add(hookBlock);
+}
+
+function createHook(obj, x, y, z) {
+    'use strict';
+
+    hook = new THREE.Object3D();
+
+    // Hook Cable creation
+    material = new THREE.MeshBasicMaterial({ color: hookCableColor, wireframe: false });
+    geometry = new THREE.CylinderGeometry(hookCableRadius, hookCableRadius, hookCableHeight);
+    hookCable = new THREE.Mesh(geometry, material);
+    hook.add(hookCable);
+
+    // Hook Block creation
+    createHookBlock(hook, 0, -hookCableHeight/2, 0);
+
     hook.position.set(x, y, z);
     obj.add(hook);
 }
@@ -240,16 +259,9 @@ function createTrolley(obj, x, y, z) {
     material = new THREE.MeshBasicMaterial({ color:trolleyCarColor, wireframe: false });
     geometry = new THREE.BoxGeometry(trolleyCarWidth, trolleyCarHeight, trolleyCarDepth);
     trolley.add(new THREE.Mesh(geometry, material));
-    
-    // Hook Cable creation
-    material = new THREE.MeshBasicMaterial({ color: hookCableColor, wireframe: false });
-    geometry = new THREE.CylinderGeometry(hookCableRadius, hookCableRadius, delta2);
-    geometry.translate(0,-delta2/2-trolleyCarHeight/2,0);
-    hookCable = new THREE.Mesh(geometry, material);
-    trolley.add(hookCable);
 
     // Hook creation
-    createHook(trolley, 0, -delta2-trolleyCarHeight/2, 0);
+    createHook(trolley, 0, -hookCableHeight/2-trolleyCarHeight/2, 0);
 
     trolley.position.set(x, y, z);
     obj.add(trolley);
@@ -617,6 +629,7 @@ function moveTrolleyS() {
     // For some reason cabinWidth != actualCabinWidth
     if (trolley.position.x > cabinWidth + 0.2) {
         trolley.position.add(velocityS);
+        delta1 += velocityS.x;
     }
 }
 
@@ -625,6 +638,7 @@ function moveTrolleyW() {
 
     if (trolley.position.x < jibWidth) {
         trolley.position.add(velocityW);
+        delta1 += velocityS.x;
     }
 }
 
@@ -632,18 +646,22 @@ function extendCable() {
     'use strict';
 
     // TODO: change 50 to crane height
-    if (hookCable.scale.y < 50) {
+    if (delta2 < towerHeight) {
         hookCable.scale.add(velocityExtend);
-        hookCable.position.y += 0.015;
+        hookCable.position.y -= (hookCable.scale.y*hookCableHeight-delta2)/2;
+        hookBlock.position.y -= (hookCable.scale.y*hookCableHeight-delta2);
+        delta2 = hookCable.scale.y*hookCableHeight;
     }
 }
 
 function retractCable() {
     'use strict';
 
-    if (hookCable.scale.y > 0) {
+    if (delta2 > hookCableHeight) {
         hookCable.scale.add(velocityRetract);
-        hookCable.position.y -= 0.015;
+        hookCable.position.y += (delta2-hookCable.scale.y*hookCableHeight)/2;
+        hookBlock.position.y += (delta2-hookCable.scale.y*hookCableHeight);
+        delta2 = hookCable.scale.y*hookCableHeight;
     }
 }
 
