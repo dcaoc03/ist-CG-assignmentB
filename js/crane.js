@@ -151,11 +151,11 @@ var delta2 = 10;
 
     const containerColor = 0x00cc00;
     const containerFloorColor = 0x005500;
-    const containerPosition = new THREE.Vector3(15, containerHeight/2-baseHeight/2, 6)
+    const containerPosition = new THREE.Vector3(10, containerHeight/2-baseHeight/2, 0)
 
     // Objects
     const cubeSide = 2;
-    const cubePosition = new THREE.Vector3(5, cubeSide/2-baseHeight/2, -5);
+    const cubePosition = new THREE.Vector3(8, cubeSide/2-baseHeight/2, -18);
     const cubeColor = 0x000055;
 
     const dodecahedronRadius = 2;
@@ -571,7 +571,7 @@ function doesItCollide() {
         if (res) {
             console.log(cargoes[index].position);
             hookBlock.add(cargoes[index]);
-            cargoes[index].position.set(0,-3,0);
+            cargoes[index].position.set(0,-hookBlockHeight/2-2,0);
             return res;
         }
     }
@@ -800,7 +800,7 @@ function extendCable() {
     'use strict';
 
     // TODO: change 50 to crane height
-    if (delta2 < towerHeight + 5) {
+    if (delta2 < towerHeight + baseHeight/2) {
         hookCable.scale.add(velocityExtend);
         hookCable.position.y -= (hookCable.scale.y*hookCableHeight-delta2)/2;
         hookBlock.position.y -= (hookCable.scale.y*hookCableHeight-delta2);
