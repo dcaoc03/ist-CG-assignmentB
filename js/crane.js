@@ -35,6 +35,10 @@ const backgroundColor = 0x79abfc; // Light blue color
 
 var claw, hookBlock, hook, trolley, upperCrane, hookCable, claws = [], base;
 var container, cube, dodecahedron, icosahedron, torus, torusKnot;
+var cubeSphere, dodecahedronSphere, icosahedronSphere, torusSphere, torusKnotSphere;
+var cargoes = [];
+var spheres = [];
+var hookBlockSphere;
 
 // KEYWORD-CONTROLLED VARIABLES
 
@@ -172,6 +176,10 @@ var delta2 = 10;
     const torusKnotPosition = new THREE.Vector3(-5, torusKnotRadius/2-baseHeight/2, -10);
     const torusKnotColor = 0xbb7700; 
 
+    // Sphere
+    const sphereRadius = 2;
+    const sphereColor = 0xFFFFFF;
+
 
 
 /*
@@ -250,6 +258,8 @@ function createHookBlock(obj, x, y, z) {
     createCameraMovel();
     hookBlock.add(cameraMovel);
     hookBlock.position.set(x, y, z);
+    hookBlockSphere = createSphere();
+    hookBlock.add(hookBlockSphere);
     obj.add(hookBlock);
 }
 
@@ -461,6 +471,8 @@ function createObjects() {
     mesh = new THREE.Mesh(geometry, material);
     cube.add(mesh);
     cube.position.set(cubePosition.x, cubePosition.y, cubePosition.z);
+    cubeSphere = createSphere();
+    cube.add(cubeSphere);
     scene.add(cube);
 
     // Dodecahedron creation
@@ -469,6 +481,8 @@ function createObjects() {
     mesh = new THREE.Mesh(geometry, material);
     dodecahedron.add(mesh);
     dodecahedron.position.set(dodecahedronPosition.x, dodecahedronPosition.y, dodecahedronPosition.z);
+    dodecahedronSphere = createSphere();
+    dodecahedron.add(dodecahedronSphere);
     scene.add(dodecahedron);
 
     // Icosahedron creation
@@ -477,6 +491,8 @@ function createObjects() {
     mesh = new THREE.Mesh(geometry, material);
     icosahedron.add(mesh);
     icosahedron.position.set(icosahedronPosition.x, icosahedronPosition.y, icosahedronPosition.z);
+    icosahedronSphere = createSphere();
+    icosahedron.add(icosahedronSphere);
     scene.add(icosahedron);
 
     // Torus creation
@@ -485,6 +501,8 @@ function createObjects() {
     mesh = new THREE.Mesh(geometry, material);
     torus.add(mesh);
     torus.position.set(torusPosition.x, torusPosition.y, torusPosition.z);
+    torusSphere = createSphere();
+    torus.add(torusSphere);
     scene.add(torus);
 
     // Torus creation
@@ -493,6 +511,8 @@ function createObjects() {
     mesh = new THREE.Mesh(geometry, material);
     torus.add(mesh);
     torus.position.set(torusPosition.x, torusPosition.y, torusPosition.z);
+    torusSphere = createSphere();
+    torus.add(torusSphere);
     scene.add(torus);
 
     // Torus Knot creation
@@ -501,8 +521,61 @@ function createObjects() {
     mesh = new THREE.Mesh(geometry, material);
     torusKnot.add(mesh);
     torusKnot.position.set(torusKnotPosition.x, torusKnotPosition.y, torusKnotPosition.z);
+    torusKnotSphere = createSphere();
+    torusKnot.add(torusKnotSphere);
     scene.add(torusKnot);
 
+}
+
+function createSphere() {
+    'use strict';
+
+    var sphere = new THREE.Object3D();
+    geometry = new THREE.SphereGeometry(sphereRadius, 32, 32);
+    material = new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: false, transparent: true, opacity: 0.5 });
+    mesh = new THREE.Mesh(geometry, material);
+    sphere.add(mesh);
+    return sphere;
+}
+
+function minus(v1, v2) {
+    return new THREE.Vector3().subVectors(v1, v2);
+}
+
+function distanceSquared(v1, v2) {
+    return minus(v2, v1).lengthSq();
+}
+
+function squaredEuclideanDistance(v1, v2) {
+    var sumOfSquaredDifferences = 0;
+    for (var i = 0; i < v1.length; i++) {
+        sumOfSquaredDifferences += Math.pow((v1[i] - v2[i]), 2);
+    }
+
+    return sumOfSquaredDifferences;
+}
+
+function doesItCollide() {
+    spheres = [cubeSphere, dodecahedronSphere, icosahedronSphere, torusSphere, torusKnotSphere];
+    cargoes = [cube, dodecahedron, icosahedron, torus, torusKnot];
+    var index;
+    var rSquared;
+    var res = false;
+    var hookBlockPosition = new THREE.Vector3(), cargoBlockPosition = new THREE.Vector3();
+    for (index = 0; index < spheres.length; index++) {
+        rSquared = (2*sphereRadius) ** 2;
+        hookBlock.getWorldPosition(hookBlockPosition);
+        cargoes[index].getWorldPosition(cargoBlockPosition)
+        res = distanceSquared(hookBlockPosition, cargoBlockPosition) <= rSquared;
+        console.log(distanceSquared(hookBlock.position, cube.position));
+        if (res) {
+            console.log(cargoes[index].position);
+            hookBlock.add(cargoes[index]);
+            cargoes[index].position.set(0,-3,0);
+            return res;
+        }
+    }
+    return res;
 }
 
 function createScene() {
@@ -727,7 +800,7 @@ function extendCable() {
     'use strict';
 
     // TODO: change 50 to crane height
-    if (delta2 < towerHeight) {
+    if (delta2 < towerHeight + 5) {
         hookCable.scale.add(velocityExtend);
         hookCable.position.y -= (hookCable.scale.y*hookCableHeight-delta2)/2;
         hookBlock.position.y -= (hookCable.scale.y*hookCableHeight-delta2);
@@ -860,10 +933,18 @@ function init() {
 
 }
 
+function startAnimation() {
+    //needs to be implemented
+}
+
 function animate() {
     'use strict';
 
     update();
+
+    if (doesItCollide()) {
+        startAnimation();
+    }
 
     render();
 
