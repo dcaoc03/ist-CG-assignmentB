@@ -31,6 +31,10 @@ const velocityW = new THREE.Vector3(0.1, 0, 0);
 
 const backgroundColor = 0x79abfc; // Light blue color
 
+// Active key
+
+var active_key = document.getElementById("active_key_val");
+
 // OBJECT DECLARATION
 
 var claw, hookBlock, hook, trolley, upperCrane, hookCable, claws = [], base;
@@ -819,6 +823,19 @@ function retractCable() {
     }
 }
 
+function toggleWireframe() {
+    'use strict';
+
+    var objects = [base, container, cube, dodecahedron, icosahedron, torus, torusKnot];
+    for (var index = 0; index < objects.length; index++) {
+        objects[index].traverse(function(child) {
+            if (child.isMesh) {
+               child.material.wireframe = !child.material.wireframe;
+            }
+        });
+    }
+}
+
 function onResize() {
     'use strict';
 
@@ -841,6 +858,7 @@ function onKeyUp(event) {
     'use strict';
 
     keys[event.keyCode] = false;
+    active_key.textContent = "";
 }
 
 function update() {
@@ -848,45 +866,64 @@ function update() {
 
     if (keys[49]) { // Tecla '1'
         switchToCameraFrontal();
+        active_key.textContent = "1";
     }
     if (keys[50]) { // Tecla '2'
         switchToCameraLateral();
+        active_key.textContent = "2";
     }
     if (keys[51]) { // Tecla '3'
         switchToCameraTopo();
+        active_key.textContent = "3";
     }
     if (keys[52]) { // Tecla '4'
         switchToCameraOrtogonal();
+        active_key.textContent = "4";
     }
     if (keys[53]) { // Tecla '5'
         switchToCameraPerspetiva();
+        active_key.textContent = "5";
     }
     if (keys[54]) { // Tecla '6'
         switchToCameraMovel();
+        active_key.textContent = "6";
+    }
+    if (keys[55]) { // Tecla '7'
+        toggleWireframe();
+        keys[55] = false;
+        active_key.textContent = "7";
     }
     if (keys[87]) { // Tecla 'W' ou 'w'
         moveTrolleyW();
+        active_key.textContent = "W";
     }
     if (keys[83]) { // Tecla 'S' ou 's'
         moveTrolleyS();
+        active_key.textContent = "S";
     }
     if (keys[81]) { // Tecla 'Q' ou 'q'
         rotateUpperCraneQ();
+        active_key.textContent = "Q";
     }
     if (keys[65]) { // Tecla 'A' ou 'a'
         rotateUpperCraneA();
+        active_key.textContent = "A";
     }
     if (keys[69]) { // Tecla 'E' ou 'e'
         extendCable();
+        active_key.textContent = "E";
     }
     if (keys[68]) { // Tecla 'D' ou 'd'
         retractCable();
+        active_key.textContent = "D";
     }
     if (keys[82]) { // Tecla 'R' ou 'r'
         rotateClawsR();
+        active_key.textContent = "R";
     }
     if (keys[70]) { // Tecla 'F' ou 'f'
         rotateClawsF();
+        active_key.textContent = "F";
     }
 }
 

@@ -1,0 +1,194 @@
+body {
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+}
+
+#background {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+#keyboard_controls {
+    color: white; 
+    display: block;
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    width: 240px;
+    height: 100%;
+    top: 0px;
+    background-color: transparent;
+    z-index: 2;
+    overflow: auto; 
+    text-align: left;
+    line-height: 20px;
+}
+
+#title {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 20px;
+    margin-left: 60px;
+    display: block;
+}
+
+
+#retract_cable {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#extend_cable {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#move_trolley_back {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#move_trolley_forward {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#rotate_crane_clockwise {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#rotate_crane_counterclockwise {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#rotate_claws_inward {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#rotate_claws_outward {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#toggle_frontal_camera {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#toggle_top_camera {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#toggle_lateral_camera {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#toggle_orthogonal_camera {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#toggle_perspective_camera {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#toggle_mobile_camera {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#toggle_wireframe {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: block;
+}
+
+#active_key {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: inline-block;
+}
+
+#active_key_val {
+    color: white;
+    font-size: 16px;
+    font-weight: thin;
+    margin-top: 20px;
+    margin-left: 10px;
+    display: inline-block;
+}
