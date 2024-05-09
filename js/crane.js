@@ -41,6 +41,7 @@ const backgroundColor = 0x79abfc; // Light blue color
 // Active key
 
 var active_key = document.getElementById("active_key_val");
+var changingTextActiveKey;
 
 // OBJECT DECLARATION
 
@@ -857,6 +858,7 @@ function onKeyUp(event) {
 
     keys[event.keyCode] = false;
     active_key.textContent = "";
+    changingTextActiveKey.style.color = 'white';
 }
 
 function update() {
@@ -867,63 +869,93 @@ function update() {
     if (keys[49]) { // Tecla '1'
         switchToCameraFrontal();
         active_key.textContent = "1";
+        changingTextActiveKey = document.getElementById("toggle_frontal_camera");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[50]) { // Tecla '2'
         switchToCameraLateral();
         active_key.textContent = "2";
+        changingTextActiveKey = document.getElementById("toggle_lateral_camera");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[51]) { // Tecla '3'
         switchToCameraTopo();
         active_key.textContent = "3";
+        changingTextActiveKey = document.getElementById("toggle_top_camera");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[52]) { // Tecla '4'
         switchToCameraOrtogonal();
         active_key.textContent = "4";
+        changingTextActiveKey = document.getElementById("toggle_orthogonal_camera");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[53]) { // Tecla '5'
         switchToCameraPerspetiva();
         active_key.textContent = "5";
+        changingTextActiveKey = document.getElementById("toggle_perspective_camera");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[54]) { // Tecla '6'
         switchToCameraMovel();
         active_key.textContent = "6";
+        changingTextActiveKey = document.getElementById("toggle_mobile_camera");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[55]) { // Tecla '7'
         toggleWireframe();
         keys[55] = false;
         active_key.textContent = "7";
+        changingTextActiveKey = document.getElementById("toggle_wireframe");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[87]) { // Tecla 'W' ou 'w'
         moveTrolleyW();
         active_key.textContent = "W";
+        changingTextActiveKey = document.getElementById("move_trolley_forward");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[83]) { // Tecla 'S' ou 's'
         moveTrolleyS();
         active_key.textContent = "S";
+        changingTextActiveKey = document.getElementById("move_trolley_back");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[81]) { // Tecla 'Q' ou 'q'
         rotateUpperCraneQ();
         active_key.textContent = "Q";
+        changingTextActiveKey = document.getElementById("rotate_crane_clockwise");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[65]) { // Tecla 'A' ou 'a'
         rotateUpperCraneA();
         active_key.textContent = "A";
+        changingTextActiveKey = document.getElementById("rotate_crane_counterclockwise");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[69]) { // Tecla 'E' ou 'e'
         extendCable();
         active_key.textContent = "E";
+        changingTextActiveKey = document.getElementById("extend_cable");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[68]) { // Tecla 'D' ou 'd'
         retractCable();
         active_key.textContent = "D";
+        changingTextActiveKey = document.getElementById("retract_cable");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[82]) { // Tecla 'R' ou 'r'
         rotateClawsR();
         active_key.textContent = "R";
+        changingTextActiveKey = document.getElementById("rotate_claws_outward");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
     if (keys[70]) { // Tecla 'F' ou 'f'
         rotateClawsF();
         active_key.textContent = "F";
+        changingTextActiveKey = document.getElementById("rotate_claws_inward");
+        changingTextActiveKey.style.color = 'LawnGreen';
     }
 }
 
