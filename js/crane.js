@@ -771,15 +771,15 @@ function rotateClawsR() {
 function rotateUpperCraneA() {
     'use strict';
 
-    upperCrane.rotation.y += 10 * (Math.PI / 180) * delta;
-    theta1 += Math.PI / 180;
+    upperCrane.rotation.y += 50 * (Math.PI / 180) * delta;
+    theta1 += 50 * (Math.PI / 180) * delta;
 }
 
 function rotateUpperCraneQ() {
     'use strict';
 
-    upperCrane.rotation.y -= 10 * (Math.PI / 180) * delta;
-    theta1 -= Math.PI / 180;
+    upperCrane.rotation.y -= 50 * (Math.PI / 180) * delta;
+    theta1 -= 50 * (Math.PI / 180) * delta;
 }
 
 function moveTrolleyS() {
@@ -787,7 +787,7 @@ function moveTrolleyS() {
 
     if (trolley.position.x > cabinWidth + 0.2) {
         trolley.position.x -= 10 * delta;
-        delta1 += velocityS.x;
+        delta1 -= 10 * delta;
     }
 }
 
@@ -796,7 +796,7 @@ function moveTrolleyW() {
 
     if (trolley.position.x < jibWidth) {
         trolley.position.x += 10 * delta;
-        delta1 += velocityW.x;
+        delta1 += 10 * delta;
     }
 }
 
@@ -804,7 +804,7 @@ function extendCable() {
     'use strict';
 
     if (delta2 < towerHeight + baseHeight/2) {
-        hookCable.scale.y += 5 * delta;
+        hookCable.scale.y += 1 * delta;
         hookCable.position.y -= (hookCable.scale.y*hookCableHeight-delta2)/2;
         hookBlock.position.y -= (hookCable.scale.y*hookCableHeight-delta2);
         delta2 = hookCable.scale.y*hookCableHeight;
@@ -815,7 +815,7 @@ function retractCable() {
     'use strict';
 
     if (delta2 > hookCableHeight) {
-        hookCable.scale.y -= 5 * delta;
+        hookCable.scale.y -= 1 * delta;
         hookCable.position.y += (delta2-hookCable.scale.y*hookCableHeight)/2;
         hookBlock.position.y += (delta2-hookCable.scale.y*hookCableHeight);
         delta2 = hookCable.scale.y*hookCableHeight;
@@ -1007,60 +1007,73 @@ function startAnimation() {
 
     window.removeEventListener("keydown", onKeyDown);
     for (var index = 0; index < hookBlock.children.length; index++) {
-    if (hookBlock.children[index].name === "cargo") {
-        cargo = hookBlock.children[index];
-        break;
+        if (hookBlock.children[index].name === "cargo") {
+            cargo = hookBlock.children[index];
+            break;
+        }
     }
-}
     var animation = setInterval(function() {
 
         if ((delta2 > hookCableHeight) && (animationSteps === 0)) {
             retractCable();
+            if (delta2 <= hookCableHeight) {
+                delta2 = hookCableHeight;
+                animationSteps = 1;
+            }
         }
         else {
-            animationSteps = 1;
             if (theta1 > 0) {
                 rotateUpperCraneQ();
-                if (theta1 < 0)
-                    theta1 = 0
+                if (theta1 <= 0) {
+                    theta1 = 0;
+                    animationSteps = 2;
+                }
             }
             else if (theta1 < 0) {
                 rotateUpperCraneA();
-                if (theta1 > 0)
-                    theta1 = 0
+                if (theta1 > 0) {
+                    theta1 = 0;
+                    animationSteps = 2;
+                }
             }
             else {
-                animationSteps = 2;
                 if (delta1 > 10) {
                     moveTrolleyS();
-                    if (delta1 < 10) {
+                    if (delta1 <= 10) {
                         delta1 = 10;
+                        animationSteps = 3;
                     }
                 }
                 else if (delta1 < 10) {
                     moveTrolleyW();
-                    if (delta1 > 10) {
+                    if (delta1 >= 10) {
                         delta1 = 10;
+                        animationSteps = 3;
                     }
                 }
                 else {
-                    animationSteps = 3;
-                    if (delta2 < towerHeight) {
+                    if ((delta2 < towerHeight) && (animationSteps === 3)) {
                         extendCable();
+                        if (delta2 >= towerHeight) {
+                            delta2 = towerHeight;
+                            animationSteps = 4;
+
+                            hookBlock.remove(cargo);
+                            container.add(cargo);
+                            cargo.position.set(0, 0, 0);
+                        }
                     }
                     else {
-                        clearInterval(animation);
-                        
-                        hookBlock.remove(cargo);
 
-                        container.add(cargo);
-
-                        cargo.position.set(0, 0, 0);
-
-                        if ((delta2 > hookCableHeight) && animationSteps === 3) {
+                        if ((delta2 > hookCableHeight) && animationSteps === 4) {
                             retractCable();
+                            if (delta2 <= hookCableHeight) {
+                                delta2 = hookCableHeight;
+                            }
                         }
                         else {
+                            clearInterval(animation);
+                            window.addEventListener("keydown", onKeyDown);
                             animationSteps = 0;
                         }
                     }
@@ -1068,7 +1081,6 @@ function startAnimation() {
             }
             }
         }, 1000 / 25);
-        window.addEventListener("keydown", onKeyDown);
 }
 
 function animate() {
