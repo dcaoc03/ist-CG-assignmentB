@@ -540,7 +540,7 @@ function createSphere() {
 
     var sphere = new THREE.Object3D();
     geometry = new THREE.SphereGeometry(sphereRadius, 32, 32);
-    material = new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: false, transparent: true, opacity: 0.5 });
+    material = new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: false, transparent: true, opacity: 0 });
     mesh = new THREE.Mesh(geometry, material);
     sphere.add(mesh);
     return sphere;
@@ -979,8 +979,6 @@ function startAnimation() {
 
         if ((delta2 > hookCableHeight) && (animationSteps === 0)) {
             retractCable();
-            if (delta2 < hookCableHeight)
-                delta2 = hookCableHeight;
         }
         else {
             animationSteps = 1;
@@ -996,7 +994,6 @@ function startAnimation() {
             }
             else {
                 animationSteps = 2;
-                console.log(theta1);
                 if (delta1 > 10) {
                     moveTrolleyS();
                     if (delta1 < 10) {
@@ -1011,10 +1008,8 @@ function startAnimation() {
                 }
                 else {
                     animationSteps = 3;
-                    if (delta2 < towerHeight + baseHeight/2) {
+                    if (delta2 < towerHeight) {
                         extendCable();
-                        if (delta2 > towerHeight + baseHeight/2)
-                            delta2 = towerHeight + baseHeight/2;
                     }
                     else {
                         clearInterval(animation);
@@ -1025,12 +1020,8 @@ function startAnimation() {
 
                         cargo.position.set(0, 0, 0);
 
-                        if ((delta2 > hookCableHeight)) {
-                            console.log(delta2);
+                        if ((delta2 > hookCableHeight) && animationSteps === 3) {
                             retractCable();
-                            if (delta2 < hookCableHeight) {
-                                delta2 = hookCableHeight;
-                            }
                         }
                         else {
                             animationSteps = 0;
