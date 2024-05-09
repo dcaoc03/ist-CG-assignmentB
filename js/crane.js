@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { rotate } from 'https://cdn.jsdelivr.net/npm/three@v0.163.0/examples/jsm/nodes/Nodes.js';
 
 /*
     +----------------------------------------+
@@ -19,6 +20,8 @@ var geometry, material, mesh;
 var axis;
 
 var keys = {};
+
+var animationSteps = 0;
 
 // Movement velocity
 
@@ -48,6 +51,7 @@ var hookBlockSphere;
 
 var delta1 = 5;
 var delta2 = 10;
+var theta1 = 0;
 
 // OBJECT CONSTANTS
 
@@ -550,15 +554,6 @@ function distanceSquared(v1, v2) {
     return minus(v2, v1).lengthSq();
 }
 
-function squaredEuclideanDistance(v1, v2) {
-    var sumOfSquaredDifferences = 0;
-    for (var i = 0; i < v1.length; i++) {
-        sumOfSquaredDifferences += Math.pow((v1[i] - v2[i]), 2);
-    }
-
-    return sumOfSquaredDifferences;
-}
-
 function doesItCollide() {
     spheres = [cubeSphere, dodecahedronSphere, icosahedronSphere, torusSphere, torusKnotSphere];
     cargoes = [cube, dodecahedron, icosahedron, torus, torusKnot];
@@ -571,9 +566,8 @@ function doesItCollide() {
         hookBlock.getWorldPosition(hookBlockPosition);
         cargoes[index].getWorldPosition(cargoBlockPosition)
         res = distanceSquared(hookBlockPosition, cargoBlockPosition) <= rSquared;
-        console.log(distanceSquared(hookBlock.position, cube.position));
         if (res) {
-            console.log(cargoes[index].position);
+            cargoes[index].name = "cargo";
             hookBlock.add(cargoes[index]);
             cargoes[index].position.set(0,-hookBlockHeight/2-2,0);
             return res;
@@ -750,7 +744,6 @@ function createCameraMovel() {
 function rotateClawsF() {
     'use strict';
      
-    console.log(claws[0].rotation.x);
     if (claws[0].rotation.x < 1) {
         claws[0].rotation.x += Math.PI / 180
         claws[1].rotation.x -= Math.PI / 180
@@ -773,12 +766,14 @@ function rotateUpperCraneA() {
     'use strict';
 
     upperCrane.rotation.y += Math.PI / 180;
+    theta1 += Math.PI / 180;
 }
 
 function rotateUpperCraneQ() {
     'use strict';
 
     upperCrane.rotation.y -= Math.PI / 180;
+    theta1 -= Math.PI / 180;
 }
 
 function moveTrolleyS() {
@@ -796,7 +791,7 @@ function moveTrolleyW() {
 
     if (trolley.position.x < jibWidth) {
         trolley.position.add(velocityW);
-        delta1 += velocityS.x;
+        delta1 += velocityW.x;
     }
 }
 
@@ -971,7 +966,81 @@ function init() {
 }
 
 function startAnimation() {
-    //needs to be implemented
+    var cargo;
+
+    window.removeEventListener("keydown", onKeyDown);
+    for (var index = 0; index < hookBlock.children.length; index++) {
+    if (hookBlock.children[index].name === "cargo") {
+        cargo = hookBlock.children[index];
+        break;
+    }
+}
+    var animation = setInterval(function() {
+
+        if ((delta2 > hookCableHeight) && (animationSteps === 0)) {
+            retractCable();
+            if (delta2 < hookCableHeight)
+                delta2 = hookCableHeight;
+        }
+        else {
+            animationSteps = 1;
+            if (theta1 > 0) {
+                rotateUpperCraneQ();
+                if (theta1 < 0)
+                    theta1 = 0
+            }
+            else if (theta1 < 0) {
+                rotateUpperCraneA();
+                if (theta1 > 0)
+                    theta1 = 0
+            }
+            else {
+                animationSteps = 2;
+                console.log(theta1);
+                if (delta1 > 10) {
+                    moveTrolleyS();
+                    if (delta1 < 10) {
+                        delta1 = 10;
+                    }
+                }
+                else if (delta1 < 10) {
+                    moveTrolleyW();
+                    if (delta1 > 10) {
+                        delta1 = 10;
+                    }
+                }
+                else {
+                    animationSteps = 3;
+                    if (delta2 < towerHeight + baseHeight/2) {
+                        extendCable();
+                        if (delta2 > towerHeight + baseHeight/2)
+                            delta2 = towerHeight + baseHeight/2;
+                    }
+                    else {
+                        clearInterval(animation);
+                        
+                        hookBlock.remove(cargo);
+
+                        container.add(cargo);
+
+                        cargo.position.set(0, 0, 0);
+
+                        if ((delta2 > hookCableHeight)) {
+                            console.log(delta2);
+                            retractCable();
+                            if (delta2 < hookCableHeight) {
+                                delta2 = hookCableHeight;
+                            }
+                        }
+                        else {
+                            animationSteps = 0;
+                        }
+                    }
+                }
+            }
+            }
+        }, 1000 / 25);
+        window.addEventListener("keydown", onKeyDown);
 }
 
 function animate() {
