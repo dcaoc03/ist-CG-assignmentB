@@ -23,6 +23,10 @@ var keys = {};
 
 var animationSteps = 0;
 
+var delta;
+
+const clock = new THREE.Clock();
+
 // Movement velocity
 
 const velocityRetract = new THREE.Vector3(0, -0.05, 0);
@@ -745,10 +749,10 @@ function rotateClawsF() {
     'use strict';
      
     if (claws[0].rotation.x < 1) {
-        claws[0].rotation.x += Math.PI / 180
-        claws[1].rotation.x -= Math.PI / 180
-        claws[2].rotation.z -= Math.PI / 180
-        claws[3].rotation.z += Math.PI / 180
+        claws[0].rotation.x += 30 * (Math.PI / 180) * delta
+        claws[1].rotation.x -= 30 * (Math.PI / 180) * delta
+        claws[2].rotation.z -= 30 * (Math.PI / 180) * delta
+        claws[3].rotation.z += 30 * (Math.PI / 180) * delta
     }
 }
 
@@ -756,32 +760,32 @@ function rotateClawsR() {
     'use strict';
 
     if (claws[0].rotation.x > 0) {
-        claws[0].rotation.x -= Math.PI / 180
-        claws[1].rotation.x += Math.PI / 180
-        claws[2].rotation.z += Math.PI / 180
-        claws[3].rotation.z -= Math.PI / 180
-    }}
+        claws[0].rotation.x -= 30 * (Math.PI / 180) * delta
+        claws[1].rotation.x += 30 * (Math.PI / 180) * delta
+        claws[2].rotation.z += 30 * (Math.PI / 180) * delta
+        claws[3].rotation.z -= 30 * (Math.PI / 180) * delta
+    }
+}
 
 function rotateUpperCraneA() {
     'use strict';
 
-    upperCrane.rotation.y += Math.PI / 180;
+    upperCrane.rotation.y += 10 * (Math.PI / 180) * delta;
     theta1 += Math.PI / 180;
 }
 
 function rotateUpperCraneQ() {
     'use strict';
 
-    upperCrane.rotation.y -= Math.PI / 180;
+    upperCrane.rotation.y -= 10 * (Math.PI / 180) * delta;
     theta1 -= Math.PI / 180;
 }
 
 function moveTrolleyS() {
     'use strict';
 
-    // For some reason cabinWidth != actualCabinWidth
     if (trolley.position.x > cabinWidth + 0.2) {
-        trolley.position.add(velocityS);
+        trolley.position.x -= 10 * delta;
         delta1 += velocityS.x;
     }
 }
@@ -790,7 +794,7 @@ function moveTrolleyW() {
     'use strict';
 
     if (trolley.position.x < jibWidth) {
-        trolley.position.add(velocityW);
+        trolley.position.x += 10 * delta;
         delta1 += velocityW.x;
     }
 }
@@ -798,9 +802,8 @@ function moveTrolleyW() {
 function extendCable() {
     'use strict';
 
-    // TODO: change 50 to crane height
     if (delta2 < towerHeight + baseHeight/2) {
-        hookCable.scale.add(velocityExtend);
+        hookCable.scale.y += 5 * delta;
         hookCable.position.y -= (hookCable.scale.y*hookCableHeight-delta2)/2;
         hookBlock.position.y -= (hookCable.scale.y*hookCableHeight-delta2);
         delta2 = hookCable.scale.y*hookCableHeight;
@@ -811,7 +814,7 @@ function retractCable() {
     'use strict';
 
     if (delta2 > hookCableHeight) {
-        hookCable.scale.add(velocityRetract);
+        hookCable.scale.y -= 5 * delta;
         hookCable.position.y += (delta2-hookCable.scale.y*hookCableHeight)/2;
         hookBlock.position.y += (delta2-hookCable.scale.y*hookCableHeight);
         delta2 = hookCable.scale.y*hookCableHeight;
@@ -858,6 +861,8 @@ function onKeyUp(event) {
 
 function update() {
     'use strict';
+
+    delta = clock.getDelta();
 
     if (keys[49]) { // Tecla '1'
         switchToCameraFrontal();
