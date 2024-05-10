@@ -9,42 +9,51 @@ import { rotate } from 'https://cdn.jsdelivr.net/npm/three@v0.163.0/examples/jsm
     +----------------------------------------+
 */
 
-// GLOBAL VARIABLES (used in several objects)
+/* ----- GLOBAL VARIABLES (used in several objects) ----- */
 
+// Cameras
 var camera, cameraFrontal, cameraLateral, cameraTopo, cameraOrtogonal, cameraPerspetiva, cameraMovel;
 
+// Scene
 var scene, renderer;
 
-var geometry, material, mesh;
+// Object3D construction helpers
+var geometry, material, mesh, axis;
 
-var axis;
-
+// Array for knowing which keys are currently active
 var keys = {};
 
+/* Flag to know which part of the animation is taking place:
+    - 0: retracting the cable after picking up the object
+    - 1: rotating the upper crane
+    - 2: moving the trolley
+    - 3: extending the cable
+    - 4: retracting the cable after dropping off the object
+*/
 var animationSteps = 0;
 
+// Value of delta for a given frame
 var delta;
 
+// Clock of the machine
 const clock = new THREE.Clock();
 
-// Movement velocity
+/* ----- ENVIRONMENT INFORMATION ----- */
 
-const velocityRetract = new THREE.Vector3(0, -0.05, 0);
-const velocityExtend = new THREE.Vector3(0, 0.025, 0);
-const velocityS = new THREE.Vector3(-0.1, 0, 0);
-const velocityW = new THREE.Vector3(0.1, 0, 0);
+// Velocities
+const upperCraneRotationAngle = 30 * (Math.PI / 180);
+const trolleyVelocity = 7;
+const cableExtensionVelocity = 0.5;
+const clawRotationAngle = 30 * (Math.PI / 180);
 
 // Background color
-
 const backgroundColor = 0x79abfc; // Light blue color
 
 // Active key
-
 var active_key = document.getElementById("active_key_val");
 var changingTextActiveKey;
 
-// OBJECT DECLARATION
-
+/* ----- OBJECT DECLARATION ----- */
 var claw, hookBlock, hook, trolley, upperCrane, hookCable, claws = [], base;
 var container, cube, dodecahedron, icosahedron, torus, torusKnot;
 var cubeSphere, dodecahedronSphere, icosahedronSphere, torusSphere, torusKnotSphere;
@@ -52,13 +61,12 @@ var cargoes = [];
 var spheres = [];
 var hookBlockSphere;
 
-// KEYWORD-CONTROLLED VARIABLES
-
+/* ----- KEYWORD-CONTROLLED VARIABLES ----- */
 var delta1 = 5;
 var delta2 = 10;
 var theta1 = 0;
 
-// OBJECT CONSTANTS
+/* ----- OBJECT CONSTANTS ----- */
 
     // Claw dimensions
     const clawRadius = 0.7;
@@ -187,7 +195,7 @@ var theta1 = 0;
     const torusKnotRadius = 2;
     const torusKnotTube = 1;
     const torusKnotPosition = new THREE.Vector3(-5, torusKnotRadius/2-baseHeight/2, -10);
-    const torusKnotColor = 0xbb7700; 
+    const torusKnotColor = 0xff7777; 
 
     // Sphere
     const sphereRadius = 2;
@@ -673,11 +681,11 @@ function createCameraLateral() {
         window.innerHeight / 30,   // Top
         window.innerHeight / -30,  // Bottom
         1,                         // Near plane
-        200                        // Far plane
+        370                        // Far plane
     );
     cameraLateral.position.x = 0;
     cameraLateral.position.y = 0;
-    cameraLateral.position.z = 150;
+    cameraLateral.position.z = 350;
     cameraLateral.lookAt(0,20,0);
 }
  
@@ -750,10 +758,10 @@ function rotateClawsF() {
     'use strict';
      
     if (claws[0].rotation.x < 1) {
-        claws[0].rotation.x += 30 * (Math.PI / 180) * delta
-        claws[1].rotation.x -= 30 * (Math.PI / 180) * delta
-        claws[2].rotation.z -= 30 * (Math.PI / 180) * delta
-        claws[3].rotation.z += 30 * (Math.PI / 180) * delta
+        claws[0].rotation.x += clawRotationAngle * delta
+        claws[1].rotation.x -= clawRotationAngle * delta
+        claws[2].rotation.z -= clawRotationAngle * delta
+        claws[3].rotation.z += clawRotationAngle * delta
     }
 }
 
@@ -761,33 +769,33 @@ function rotateClawsR() {
     'use strict';
 
     if (claws[0].rotation.x > 0) {
-        claws[0].rotation.x -= 30 * (Math.PI / 180) * delta
-        claws[1].rotation.x += 30 * (Math.PI / 180) * delta
-        claws[2].rotation.z += 30 * (Math.PI / 180) * delta
-        claws[3].rotation.z -= 30 * (Math.PI / 180) * delta
+        claws[0].rotation.x -= clawRotationAngle * delta
+        claws[1].rotation.x += clawRotationAngle * delta
+        claws[2].rotation.z += clawRotationAngle * delta
+        claws[3].rotation.z -= clawRotationAngle * delta
     }
 }
 
 function rotateUpperCraneA() {
     'use strict';
 
-    upperCrane.rotation.y += 50 * (Math.PI / 180) * delta;
-    theta1 += 50 * (Math.PI / 180) * delta;
+    upperCrane.rotation.y += upperCraneRotationAngle * delta;
+    theta1 += upperCraneRotationAngle * delta;
 }
 
 function rotateUpperCraneQ() {
     'use strict';
 
-    upperCrane.rotation.y -= 50 * (Math.PI / 180) * delta;
-    theta1 -= 50 * (Math.PI / 180) * delta;
+    upperCrane.rotation.y -= upperCraneRotationAngle * delta;
+    theta1 -= upperCraneRotationAngle * delta;
 }
 
 function moveTrolleyS() {
     'use strict';
 
     if (trolley.position.x > cabinWidth + 0.2) {
-        trolley.position.x -= 10 * delta;
-        delta1 -= 10 * delta;
+        trolley.position.x -= trolleyVelocity * delta;
+        delta1 -= trolleyVelocity * delta;
     }
 }
 
@@ -795,8 +803,8 @@ function moveTrolleyW() {
     'use strict';
 
     if (trolley.position.x < jibWidth) {
-        trolley.position.x += 10 * delta;
-        delta1 += 10 * delta;
+        trolley.position.x += trolleyVelocity * delta;
+        delta1 += trolleyVelocity * delta;
     }
 }
 
@@ -804,7 +812,7 @@ function extendCable() {
     'use strict';
 
     if (delta2 < towerHeight + baseHeight/2) {
-        hookCable.scale.y += 1 * delta;
+        hookCable.scale.y += cableExtensionVelocity * delta;
         hookCable.position.y -= (hookCable.scale.y*hookCableHeight-delta2)/2;
         hookBlock.position.y -= (hookCable.scale.y*hookCableHeight-delta2);
         delta2 = hookCable.scale.y*hookCableHeight;
@@ -815,7 +823,7 @@ function retractCable() {
     'use strict';
 
     if (delta2 > hookCableHeight) {
-        hookCable.scale.y -= 1 * delta;
+        hookCable.scale.y -= cableExtensionVelocity * delta;
         hookCable.position.y += (delta2-hookCable.scale.y*hookCableHeight)/2;
         hookBlock.position.y += (delta2-hookCable.scale.y*hookCableHeight);
         delta2 = hookCable.scale.y*hookCableHeight;
@@ -1080,7 +1088,7 @@ function startAnimation() {
                 }
             }
             }
-        }, 1000 / 25);
+        }, 1000);
 }
 
 function animate() {
