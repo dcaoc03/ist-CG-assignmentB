@@ -1,21 +1,15 @@
-# Computação Gráfica 2023/2024, Grupo 63 - Trabalho B
+# Computer Graphics: Crane Simulation
 
-### Trabalho realizado por:
-- Pedro Lima, 103000
-- Diogo Costa, 103179
-- José Fernandes, 103727
+This was the second project developed for the Computer Graphics course at Instituto Superior Técnico in the school year 2023/2024. It was made using the Three.js JavaScript library. It models a scene in which a moving crane is simulated, featuring several elements such as cameras, geometrical primitives and collisions.
 
-### Tarefas do trabalho:
-- **Tarefa 1**: definição da cor do fundo e instalação de câmaras (**José**)
-- **Tarefa 2**: modelação da grua e das respetivas componentes (**Diogo**)
-- **Tarefa 3**: modelação do contentor e das cargas (**Diogo**)
-- **Tarefa 4**: implementação de event listeners com base no pressionamento de teclas (**José**)
-- **Tarefa 5**: implementação da alternância entre modelo de arames e sólida (**Pedro**)
-- **Tarefa 6**: implementação da deteção de colisões (**Pedro**)
-- **Tarefa 7**: criação do HUD (**Pedro**)
+It was developed by:
 
-### Distribuição de tarefas:
-#### DONE:
+- [pedrofpclima](https://github.com/pedrofpclima)
+- [dcaoc03](https://github.com/dcaoc03)
+- [zecbfernandes](https://github.com/zecbfernandes)
 
-#### TODO:
-Tarefa 1, Tarefa 2, Tarefa 3, Tarefa 4, Tarefa 5, Tarefa 6, Tarefa 7
+The project was mostly done in English, while its guidelines were given in Portuguese.
+
+Final Grade: 16.00
+
+![Crane View 1](./assets/crane-perspective-camera-view.png) ![Crane View 2](./assets/crane-claw-camera-view.png) ![Crane View 3](./assets/crane-top-camera-view.png) 
